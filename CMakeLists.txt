@@ -12,7 +12,11 @@ set(CMAKE_MODULE_PATH
 
 ## OS Specific settings
 include(cmake/os.cmake)
-# provides variables for header hc_compiledata.h
+
+## External projects: analyzer(PODD)
+include(ExternalProject)
+
+# provides variables for HallC header "hc_compiledata.h"
 include(cmake/modules/CompileTimeInfo.cmake)
 
 include(GNUInstallDirs)
@@ -20,13 +24,34 @@ set(INSTALL_CONFIGDIR lib/hcana)
 
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX})
 
-find_package(EXPAT REQUIRED COMPONENTS EXPAT )
-find_package(Threads REQUIRED)
-find_package(ZLIB REQUIRED)
+# ---------------
+# PODD
+find_package(PODD)
+#ExternalProject_Add(PODD_project 
+#  GIT_REPOSITORY    https://github.com/whit2333/analyzer.git
+#  GIT_TAG           origin/testing
+#  SOURCE_DIR "${CMAKE_BINARY_DIR}/hallac_PODD-src"
+#  BINARY_DIR "${CMAKE_BINARY_DIR}/hallac_PODD-build"
+#  CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=@CMAKE_INSTALL_PREFIX@" "-DCMAKE_PREFIX_PATH=@CMAKE_INSTALL_PREFIX@"
+#  BUILD_COMMAND ${CMAKE_COMMAND}   --build . -- -j4
+#  USES_TERMINAL_BUILD ON
+#  TEST_COMMAND ""
+#  LOG_DOWNLOAD ON
+#  )
+if(NOT ${PODD_FOUND})
+  message(STATUS "PODD not found. Will download and build analyzer (PODD)")
+  add_subdirectory(external)
+  find_package(PODD)
+    #Rescan becomes a dummy target after first build
+    #this prevents cmake from rebuilding cache/projects on subsequent builds
+    #add_custom_target(Rescan)
+endif()
 
-include(ExternalProject)
-add_subdirectory(external)
-find_package(PODD REQUIRED)
+#add_executable(testapp testapp.cpp )
+#add_dependencies(testapp Rescan)
+#if(${Beaengine_FOUND})
+#    target_link_libraries(testapp ${Beaengine_LIBRARY})
+#endif()
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS}/etc/cmake)
@@ -58,9 +83,22 @@ install(FILES
 ##############################################
 # Installation
 
-
 #Create a ConfigVersion.cmake file
 include(CMakePackageConfigHelpers)
+
+# Install and export targets
+install(EXPORT HCANA-targets
+  FILE HCANATargets.cmake
+  NAMESPACE HCANA::
+  DESTINATION lib/hcana
+  )
+
+set(TARGETS_INSTALL_PATH lib/hcana/HCANATargets.cmake)
+configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/HCANAConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/HCANAConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+    PATH_VARS TARGETS_INSTALL_PATH
+)
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/HCANAConfigVersion.cmake
@@ -68,10 +106,6 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
   )
 
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/HCANAConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/HCANAConfig.cmake
-    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
-)
 
 #Install the config, configversion and custom find modules
 install(FILES
