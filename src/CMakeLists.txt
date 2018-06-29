@@ -62,8 +62,8 @@ target_compile_options(HallC PRIVATE $<$<CXX_COMPILER_ID:GNU>:-DHAS_SSTREAM=1>)
 
 target_link_libraries(HallC
   PUBLIC ${ROOT_LIBRARIES} 
-  PUBLIC PODD::HallA
-  PUBLIC PODD::Decode
+  PUBLIC HallA
+  PUBLIC dc
 )
 #This is required so that the exported target has the name JSONUtils and not jsonutils
 #set_target_properties(HallC PROPERTIES EXPORT_NAME hallC)

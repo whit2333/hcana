@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.5)
+
+# simplify variable expansion
+cmake_policy(SET CMP0053 NEW)
+cmake_policy(SET CMP0010 NEW)
+
+project(PODD-download NONE)
+
+include(ExternalProject)
+
+ExternalProject_Add(PODD_project 
+      GIT_REPOSITORY    https://github.com/whit2333/analyzer.git
+      GIT_TAG           origin/testing
+      SOURCE_DIR "${CMAKE_BINARY_DIR}/hallac_PODD-src"
+      BINARY_DIR "${CMAKE_BINARY_DIR}/hallac_PODD-build"
+      CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=@CMAKE_INSTALL_PREFIX@" "-DCMAKE_PREFIX_PATH=@CMAKE_INSTALL_PREFIX@"
+      BUILD_COMMAND ${CMAKE_COMMAND} --build . -- -j4
+      TEST_COMMAND ""
+      LOG_DOWNLOAD ON
+      )
