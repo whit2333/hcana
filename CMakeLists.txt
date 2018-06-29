@@ -38,14 +38,14 @@ find_package(PODD)
 #  TEST_COMMAND ""
 #  LOG_DOWNLOAD ON
 #  )
-if(NOT ${PODD_FOUND})
-  message(STATUS "PODD not found. Will download and build analyzer (PODD)")
-  add_subdirectory(external)
-  find_package(PODD)
-    #Rescan becomes a dummy target after first build
-    #this prevents cmake from rebuilding cache/projects on subsequent builds
-    #add_custom_target(Rescan)
-endif()
+#if(NOT ${PODD_FOUND})
+#  message(STATUS "PODD not found. Will download and build analyzer (PODD)")
+#  add_subdirectory(external)
+#  find_package(PODD)
+#    #Rescan becomes a dummy target after first build
+#    #this prevents cmake from rebuilding cache/projects on subsequent builds
+#    #add_custom_target(Rescan)
+#endif()
 
 #add_executable(testapp testapp.cpp )
 #add_dependencies(testapp Rescan)
