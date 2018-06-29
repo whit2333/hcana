@@ -4,6 +4,9 @@ include("@PACKAGE_TARGETS_INSTALL_PATH@")
 
 check_required_components(HCANA)
 
+find_package(PODD REQUIRED)
+message(STATUS "Found HCANA")
+
 #get_filename_component(HCANA_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 #include(CMakeFindDependencyMacro)
 #

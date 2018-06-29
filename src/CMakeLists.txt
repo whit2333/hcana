@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
+
 set(HCANA_src 
 Scaler9001.cxx Scaler9250.cxx THcAerogel.cxx THcAerogelHit.cxx THcAnalyzer.cxx THcBCMCurrent.cxx THcCherenkov.cxx
 THcCherenkovHit.cxx THcCoinTime.cxx THcConfigEvtHandler.cxx THcDC.cxx THcDCHit.cxx THcDCLookupTTDConv.cxx THcDCTimeToDistConv.cxx
@@ -39,12 +40,13 @@ set(PCM_FILE  ${CMAKE_CURRENT_BINARY_DIR}/HallCDict_rdict.pcm)
 #    SOVERSION "${lib_MAJOR_VERSION}"
 #    SUFFIX ".so")
 
-ADD_CUSTOM_TARGET(HallC_ROOTDICTS DEPENDS ${HCANA_src} ${headers} include/HallC_LinkDef.h HallCDict.cxx)
+add_custom_target(HallC_ROOTDICTS DEPENDS ${HCANA_src} ${headers} include/HallC_LinkDef.h HallCDict.cxx)
+
 add_library(HallC SHARED
   ${HCANA_src} HallCDict.cxx
   )
 
-add_library(HCANA::HallC ALIAS HallC)
+#add_library(HCANA::HallC ALIAS HallC)
 
 #Set target properties
 target_include_directories(HallC
@@ -63,7 +65,7 @@ target_compile_options(HallC PRIVATE $<$<CXX_COMPILER_ID:GNU>:-DHAS_SSTREAM=1>)
 target_link_libraries(HallC
   PUBLIC ${ROOT_LIBRARIES} 
   PUBLIC PODD::HallA
-  PUBLIC PODD::Decode
+  PUBLIC PODD::dc
 )
 #This is required so that the exported target has the name JSONUtils and not jsonutils
 #set_target_properties(HallC PROPERTIES EXPORT_NAME hallC)
