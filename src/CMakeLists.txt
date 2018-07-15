@@ -82,7 +82,9 @@ target_include_directories(hcana
 )
 
 #target_compile_features(HallC PRIVATE cxx_auto_type)
-target_compile_options(hcana PRIVATE $<$<CXX_COMPILER_ID:GNU>:-DHAS_SSTREAM=1>)
+target_compile_options(hcana 
+  PRIVATE $<$<CXX_COMPILER_ID:GNU>:-fPIC>
+  PRIVATE $<$<CXX_COMPILER_ID:GNU>:-DHAS_SSTREAM=1>)
 target_link_libraries(hcana
   PUBLIC HallC
   PUBLIC ${ROOT_LIBRARIES} 
