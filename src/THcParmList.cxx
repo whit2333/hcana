@@ -108,13 +108,13 @@ The ENGINE CTP support parameter "blocks" which were marked with
   Int_t nfiles=0;
   ifiles[nfiles].open(fname);
   if(ifiles[nfiles].is_open()) {
-    cout << "Opening parameter file: [" << nfiles << "] " << fname << endl;
+    //cout << "Opening parameter file: [" << nfiles << "] " << fname << endl;
     nfiles++;
   }
 
   if(!nfiles) {
     static const char* const here   = "THcParmList::LoadFromFile";
-    Error (here, "error opening parameter file %s",fname);
+    //Error (here, "error opening parameter file %s",fname);
     return;			// Need a success argument returned
   }
 
@@ -128,7 +128,7 @@ The ENGINE CTP support parameter "blocks" which were marked with
 
   if(RunNumber > 0) {
     InRunRange = 0;		// Wait until run number range matching RunNumber is found
-    cout << "Reading Parameters for run " << RunNumber << endl;
+    //cout << "Reading Parameters for run " << RunNumber << endl;
   } else {
     InRunRange = 1;		// Interpret all lines
   }
@@ -698,8 +698,8 @@ std::string THcParmList::PrintJSON(int run_number ) const {
   jrun[std::to_string(run_number)] = j;
   //std::cout << j.dump(2) << "\n";
   // write prettified JSON to another file
-  std::ofstream o("pretty.json");
-  o << std::setw(4) << jrun << std::endl;
+  //std::ofstream o("pretty.json");
+  //o << std::setw(4) << jrun << std::endl;
   return jrun.dump();
 }
 
