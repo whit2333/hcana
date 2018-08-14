@@ -26,8 +26,8 @@ for the Hall C style parameter database.
 
 using namespace std;
 
-THcParmList* gHcParms     = NULL;  // List of symbolic analyzer variables
-THcDetectorMap* gHcDetectorMap = NULL; // Global (Hall C style) detector map
+THcParmList* gHcParms     = nullptr;  // List of symbolic analyzer variables
+THcDetectorMap* gHcDetectorMap = nullptr; // Global (Hall C style) detector map
 
 //_____________________________________________________________________________
 THcInterface::THcInterface( const char* appClassName, int* argc, char** argv,
