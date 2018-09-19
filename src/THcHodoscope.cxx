@@ -70,13 +70,15 @@ THcHodoscope::THcHodoscope( ) :
 //_____________________________________________________________________________
 void THcHodoscope::Setup(const char* name, const char* description)
 {
+  /**
+     Create the scintillator plane objects for the hodoscope.
+     
+     Uses the Xhodo_num_planes and Xhodo_plane_names to get the number of
+     planes and their names.
 
-  //  static const char* const here = "Setup()";
-  //  static const char* const message =
-  //    "Must construct %s detector with valid name! Object construction failed.";
+     Gets a pointer to the Cherenkov named "cer" ("hgcer" in the case of the SHMS.)
 
-  // cout << "In THcHodoscope::Setup()" << endl;
-  // Base class constructor failed?
+  */     
   if( IsZombie()) return;
 
   // fDebug = 1;  // Keep this at one while we're working on the code
@@ -180,13 +182,6 @@ THaAnalysisObject::EStatus THcHodoscope::Init( const TDatime& date )
     }
   }
 
-  // Replace with what we need for Hall C
-  //  const DataDest tmp[NDEST] = {
-  //    { &fRTNhit, &fRANhit, fRT, fRT_c, fRA, fRA_p, fRA_c, fROff, fRPed, fRGain },
-  //    { &fLTNhit, &fLANhit, fLT, fLT_c, fLA, fLA_p, fLA_c, fLOff, fLPed, fLGain }
-  //  };
-  //  memcpy( fDataDest, tmp, NDEST*sizeof(DataDest) );
-
   fNScinHits     = new Int_t [fNPlanes];
   fGoodPlaneTime = new Bool_t [fNPlanes];
   fNPlaneTime    = new Int_t [fNPlanes];
@@ -215,21 +210,17 @@ THaAnalysisObject::EStatus THcHodoscope::Init( const TDatime& date )
 //_____________________________________________________________________________
 Int_t THcHodoscope::ReadDatabase( const TDatime& date )
 {
+  /**
+     Read this detector's parameters from the ThcParmlist.
 
-  // Read this detector's parameters from the database file 'fi'.
-  // This function is called by THaDetectorBase::Init() once at the
-  // beginning of the analysis.
-  // 'date' contains the date/time of the run being analyzed.
-
+     This function is called by THaDetectorBase::Init() once at the
+     beginning of the analysis.
+  */
   //  static const char* const here = "ReadDatabase()";
   char prefix[2];
   char parname[100];
 
-  // Read data from database
-  // Pull values from the THcParmList instead of reading a database
-  // file like Hall A does.
-
-  // Will need to determine which spectrometer in order to construct
+  // Determine which spectrometer in order to construct
   // the parameter names (e.g. hscin_1x_nr vs. sscin_1x_nr)
 
   prefix[0]=tolower(GetApparatus()->GetName()[0]);
@@ -537,7 +528,9 @@ Int_t THcHodoscope::ReadDatabase( const TDatime& date )
 //_____________________________________________________________________________
 Int_t THcHodoscope::DefineVariables( EMode mode )
 {
-  // Initialize global variables and lookup table for decoder
+  /**
+    Initialize global variables for histograms and Root tree
+  */
   // cout << "THcHodoscope::DefineVariables called " << GetName() << endl;
   if( mode == kDefine && fIsSetup ) return kOK;
   fIsSetup = ( mode == kDefine );
@@ -553,7 +546,10 @@ Int_t THcHodoscope::DefineVariables( EMode mode )
     {"starttime",         "Hodoscope Start Time",                         "fStartTime"},
     {"goodstarttime",     "Hodoscope Good Start Time (logical flag)",                    "fGoodStartTime"},
     {"goodscinhit",       "Hit in fid area",                              "fGoodScinHits"},
-    { 0 }
+    {"TimeHist_Sigma",       "",                              "fTimeHist_Sigma"},
+    {"TimeHist_Peak",       "",                              "fTimeHist_Peak"},
+    {"TimeHist_Hits",       "",                              "fTimeHist_Hits"},
+     { 0 }
   };
   return DefineVarsFromList( vars, mode );
   //  return kOK;
@@ -639,6 +635,9 @@ void THcHodoscope::ClearEvent()
    *  Called by  THcHodoscope::Decode
    *
    */
+  fTimeHist_Sigma=  kBig;
+  fTimeHist_Peak=  kBig;
+  fTimeHist_Hits=  kBig;
 
   fBeta = 0.0;
   fBetaNoTrk = 0.0;
@@ -779,6 +778,7 @@ void THcHodoscope::EstimateFocalPlaneTime()
     }
   }
   //
+  //
   ihit = 0;
   Double_t fpTimeSum = 0.0;
   fNfptimes=0;
@@ -787,6 +787,9 @@ void THcHodoscope::EstimateFocalPlaneTime()
   Bool_t goodplanetime[fNPlanes];
   Bool_t twogoodtimes[nscinhits];
   Double_t tmin = 0.5*hTime->GetMaximumBin();
+  fTimeHist_Peak=  tmin;
+  fTimeHist_Sigma=  hTime->GetRMS();
+  fTimeHist_Hits=  hTime->Integral();
   for(Int_t ip=0;ip<fNumPlanesBetaCalc;ip++) {
     goodplanetime[ip] = kFALSE;
     Int_t nphits=fPlanes[ip]->GetNScinHits();
@@ -825,7 +828,7 @@ void THcHodoscope::EstimateFocalPlaneTime()
       }
       ihit++;
     }
-    fPlanes[ip]->SetFpTime(Plane_fptime_sum/float(Ngood_hits_plane));
+    if (Ngood_hits_plane) fPlanes[ip]->SetFpTime(Plane_fptime_sum/float(Ngood_hits_plane));
     fPlanes[ip]->SetNGoodHits(Ngood_hits_plane);
   }
 
@@ -838,7 +841,8 @@ void THcHodoscope::EstimateFocalPlaneTime()
     fGoodStartTime=kFALSE;
     fFPTimeAll = fStartTime ;
   }
-  //
+    //
+   //
   hTime->Reset();
   //
   if((goodplanetime[0]||goodplanetime[1]) &&(goodplanetime[2]||goodplanetime[3])) {
@@ -941,7 +945,6 @@ void THcHodoscope::EstimateFocalPlaneTime()
     if ((fNumPlanesBetaCalc==4)&&goodplanetime[0]&&goodplanetime[1]&&goodplanetime[2]&&goodplanetime[3]&&fPlanes[0]->GetNGoodHits()==1&&fPlanes[1]->GetNGoodHits()==1&&fPlanes[2]->GetNGoodHits()==1&&fPlanes[3]->GetNGoodHits()==1) fGoodEventTOFCalib=kTRUE;
     if ((fNumPlanesBetaCalc==3)&&goodplanetime[0]&&goodplanetime[1]&&goodplanetime[2]&&fPlanes[0]->GetNGoodHits()==1&&fPlanes[1]->GetNGoodHits()==1&&fPlanes[2]->GetNGoodHits()==1) fGoodEventTOFCalib=kTRUE;
     //
-
     //
   }
 }
@@ -1102,8 +1105,10 @@ Int_t THcHodoscope::CoarseProcess( TClonesArray& tracks )
 		  /TMath::Sqrt(TMath::Max(20.0*.020,adc_pos));
 	      } else {
 	        //Double_t tw_corr_pos = fHodoPos_c1[fPIndex]/pow(adcamp_pos/fTdc_Thrs,fHodoPos_c2[fPIndex]) -  fHodoPos_c1[fPIndex]/pow(200./fTdc_Thrs, fHodoPos_c2[fPIndex]);
-		Double_t tw_corr_pos = 1./pow(adcamp_pos/fTdc_Thrs,fHodoPos_c2[fPIndex]) -  1./pow(200./fTdc_Thrs, fHodoPos_c2[fPIndex]);            
-		timep += -tw_corr_pos + fHodo_LCoeff[fPIndex];
+		Double_t tw_corr_pos=0.;
+		pathp=scinLongCoord;
+		if (adcamp_pos>0) tw_corr_pos = 1./pow(adcamp_pos/fTdc_Thrs,fHodoPos_c2[fPIndex]) -  1./pow(200./fTdc_Thrs, fHodoPos_c2[fPIndex]);            
+		timep += -tw_corr_pos + fHodo_LCoeff[fPIndex]+ pathp/fHodoVelFit[fPIndex];
 	      }
 	      fTOFPInfo[ihhit].scin_pos_time = timep;
  	      timep -= zcor;
@@ -1124,9 +1129,10 @@ Int_t THcHodoscope::CoarseProcess( TClonesArray& tracks )
 		  + fHodoNegInvAdcAdc[fPIndex]
 		  /TMath::Sqrt(TMath::Max(20.0*.020,adc_neg));
 	      } else {
-		// Double_t tw_corr_neg = fHodoNeg_c1[fPIndex]/pow(adcamp_neg/fTdc_Thrs,fHodoNeg_c2[fPIndex]) -  fHodoNeg_c1[fPIndex]/pow(200./fTdc_Thrs, fHodoNeg_c2[fPIndex]);
-		Double_t tw_corr_neg = 1./pow(adcamp_neg/fTdc_Thrs,fHodoNeg_c2[fPIndex]) -  1./pow(200./fTdc_Thrs, fHodoNeg_c2[fPIndex]);              
-		timen += -tw_corr_neg- 2*fHodoCableFit[fPIndex] + fHodo_LCoeff[fPIndex];
+		pathn=scinLongCoord ;
+		Double_t tw_corr_neg =0 ;
+		if (adcamp_neg >0) tw_corr_neg= 1./pow(adcamp_neg/fTdc_Thrs,fHodoNeg_c2[fPIndex]) -  1./pow(200./fTdc_Thrs, fHodoNeg_c2[fPIndex]);              
+		timen += -tw_corr_neg- 2*fHodoCableFit[fPIndex] + fHodo_LCoeff[fPIndex]- pathn/fHodoVelFit[fPIndex];
 
 	      }
 	      fTOFPInfo[ihhit].scin_neg_time = timen;
@@ -1143,7 +1149,6 @@ Int_t THcHodoscope::CoarseProcess( TClonesArray& tracks )
 	//-----------------------------------------------------------------------------------------------
       }
       Int_t nhits=ihhit;
-
 
 
       if(0.5*hTime->GetMaximumBin() > 0) {
@@ -1554,11 +1559,9 @@ void THcHodoscope::TrackEffTest(void)
 //
 void THcHodoscope::OriginalTrackEffTest(void)
 {
-  //-----------------------------------------------------------------------
-  //
-  //   Trnslation of h_track_tests.f file for tracking efficiency
-  //
-  //-----------------------------------------------------------------------
+  /**
+      Translation of h_track_tests.f file for tracking efficiency
+  */
 
   //************************now look at some hodoscope tests
   //  *second, we move the scintillators.  here we use scintillator cuts to see

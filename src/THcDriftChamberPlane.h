@@ -44,7 +44,8 @@ public:
 
   virtual Int_t SubtractStartTime();
 
-
+  virtual Int_t GetReadoutSide(Int_t wirenum);
+  
   // Get and Set functions
   Int_t        GetNWires()   const { return fWires->GetLast()+1; }
   THcDCWire*  GetWire(Int_t i) const
@@ -89,6 +90,7 @@ protected:
   Int_t fPlaneIndex;		/* Index of this plane within it's chamber */
   Int_t fChamberNum;
   Int_t fUsingTzeroPerWire;
+  Int_t fUsingSigmaPerWire;
   Int_t fNRawhits;
   Int_t fNWires;
   Int_t fTdcWinMin;
@@ -116,6 +118,7 @@ protected:
   Double_t fNSperChan;		/* TDC bin size */
 
   Double_t* fTzeroWire;
+  Double_t* fSigmaWire;
 
   virtual Int_t  ReadDatabase( const TDatime& date );
   virtual Int_t  DefineVariables( EMode mode = kDefine );

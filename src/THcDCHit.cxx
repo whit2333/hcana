@@ -1,7 +1,7 @@
 /** \class THcDCHit
     \ingroup DetSupport
 
-Drift chamber wire hit info
+    \brief Drift chamber wire hit info
 
 */
 #include "THcDCHit.h"
@@ -27,7 +27,7 @@ void THcDCHit::Print( Option_t* opt ) const
        << " time="     << GetTime()
        << " drift="    << GetDist();
   //       << " res="      << GetResolution()
-    //       << " z="        << GetZ()
+  //       << " z="        << GetZ()
   if( *opt != 'C' )
     cout << endl;
 }

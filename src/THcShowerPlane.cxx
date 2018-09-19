@@ -1,7 +1,7 @@
 /** \class THcShowerPlane
-    \group DetSupport
+    \ingroup DetSupport
 
-One plane of shower blocks with side readout
+    \brief One plane of shower blocks with side readout
 
 */
 
@@ -481,7 +481,7 @@ void THcShowerPlane::Clear( Option_t* )
   if ( static_cast<THcShower*>(GetParent())->fdbg_decoded_cal ) {
     cout << "---------------------------------------------------------------\n";
     cout << "Debug output from THcShowerPlane::Clear for "
-    	 << fParent->GetPrefix() << ":" << endl;
+    	 << GetParent()->GetPrefix() << ":" << endl;
 
     cout << " Cleared ADC hits for plane " << GetName() << endl;
     cout << "---------------------------------------------------------------\n";

@@ -1,4 +1,11 @@
-//*-- Author :    Mark Jones, March 2018
+/**
+   \class THcReactionPoint
+   \ingroup PhysMods
+
+   \brief Calculate vertex coordinates.
+
+   \author Mark Jones
+*/
 
 #include "THcReactionPoint.h"
 #include "THaSpectrometer.h"
@@ -68,9 +75,9 @@ Int_t THcReactionPoint::Process( const THaEvData& )
     theTrack->SetVertex(v);
     if( theTrack == fSpectro->GetGoldenTrack() ) {
       fVertex = theTrack->GetVertex();
-       fVertexOK = kTRUE;
+      fVertexOK = kTRUE;
     }
-   }
+  }
   return 0;
 }
   

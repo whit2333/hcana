@@ -1,7 +1,7 @@
 /** \class THcDriftChamberPlane
     \ingroup DetSupport
 
-Class for a a single Hall C horizontal drift chamber plane
+    \brief Class for a a single Hall C horizontal drift chamber plane
 
 */
 
@@ -38,6 +38,7 @@ THcDriftChamberPlane::THcDriftChamberPlane( const char* name,
   // Normal constructor with name and description
   fHits = new TClonesArray("THcDCHit",100);
   fWires = new TClonesArray("THcDCWire", 100);
+
   fTTDConv = NULL;
 
   fPlaneNum = planenum;
@@ -97,6 +98,7 @@ Int_t THcDriftChamberPlane::ReadDatabase( const TDatime& date )
   Double_t DriftMapFirstBin;
   Double_t DriftMapBinSize;
   fUsingTzeroPerWire=0;
+  fUsingSigmaPerWire=0;
   prefix[0]=tolower(GetParent()->GetPrefix()[0]);
   prefix[1]='\0';
   DBRequest list[]={
@@ -104,6 +106,7 @@ Int_t THcDriftChamberPlane::ReadDatabase( const TDatime& date )
     {"drift1stbin", &DriftMapFirstBin, kDouble},
     {"driftbinsz", &DriftMapBinSize, kDouble},
     {"_using_tzero_per_wire", &fUsingTzeroPerWire, kInt,0,1},
+    {"_using_sigma_per_wire", &fUsingSigmaPerWire, kInt,0,1},
     {0}
   };
 
@@ -142,25 +145,35 @@ Int_t THcDriftChamberPlane::ReadDatabase( const TDatime& date )
 
   fNSperChan = fParent->GetNSperChan();
 
-  if (fUsingTzeroPerWire==1) {
+
   fTzeroWire = new Double_t [fNWires];
-  DBRequest list3[]={
+  fSigmaWire = new Double_t [fNWires];
+
+
+  if (fUsingTzeroPerWire==1) {
+     DBRequest list3[]={
     {Form("tzero%s",GetName()),fTzeroWire,kDouble,(UInt_t) fNWires},
     {0}
   };
   gHcParms->LoadParmValues((DBRequest*)&list3,prefix);
-    // printf(" using tzero per wire plane = %s  nwires = %d  \n",GetName(),fNWires);
-    //   for (Int_t iw=0;iw < fNWires;iw++) {
-    // 	//	printf("%d  %f ",iw+1,fTzeroWire[iw]) ;
-    // 	if ( iw!=0 && iw%8 == 0) printf("\n") ;
-    // 	}
+
   } else {
-  fTzeroWire = new Double_t [fNWires];
   for (Int_t iw=0;iw < fNWires;iw++) {
     fTzeroWire[iw]=0.0;
     } 
   }
 
+  if (fUsingSigmaPerWire==1) {
+    DBRequest list4[]={
+      {Form("wire_sigma%s",GetName()),fSigmaWire,kDouble,(UInt_t) fNWires},
+      {0}
+    };
+    gHcParms->LoadParmValues((DBRequest*)&list4,prefix);
+  }  else {
+    for (Int_t iw=0;iw < fNWires;iw++) {
+      fSigmaWire[iw]=fSigma;
+    }
+  }
   // Calculate Geometry Constants
   // Do we want to move all this to the Chamber of DC Package leve
   // as that is where these things will be needed?
@@ -207,7 +220,7 @@ Int_t THcDriftChamberPlane::ReadDatabase( const TDatime& date )
 			       + pow(hxpsi*fPsi0+hxchi*hchi0,2)
 			       + pow(hypsi*fPsi0+hychi*hchi0,2) );
   if(z0 < 0.0) hphi0 = -hphi0;
-
+  
   Double_t denom2 = stubxpsi*stubychi - stubxchi*stubypsi;
 
   // Why are there 4, but only 3 used?
@@ -243,21 +256,21 @@ Int_t THcDriftChamberPlane::ReadDatabase( const TDatime& date )
   for (int i=0; i<nWires; i++) {
     Double_t pos = fPitch*( (fWireOrder==0?(i+1):fNWires-i)
 			    - fCentralWire) - fCenter;
-    new((*fWires)[i]) THcDCWire( i+1, pos , 0.0, fTTDConv);
-    //if( something < 0 ) wire->SetFlag(1);
+    Int_t readoutside = GetReadoutSide(i+1);
+    new((*fWires)[i]) THcDCWire( i+1, pos , fTzeroWire[i], fSigmaWire[i], readoutside, fTTDConv);    //added fTzeroWire/fSigmaWire to be read in as fTOffset --Carlos
   }
-
+  
   THaApparatus* app = GetApparatus();
   const char* nm = "hod";
   if(  !app ||
-      !(fglHod = dynamic_cast<THcHodoscope*>(app->GetDetector(nm))) ) {
+       !(fglHod = dynamic_cast<THcHodoscope*>(app->GetDetector(nm))) ) {
     static const char* const here = "ReadDatabase()";
     Warning(Here(here),"Hodoscope \"%s\" not found. "
 	    "Event-by-event time offsets will NOT be used!!",nm);
   }
-
+  
   return kOK;
-}
+}  
 //_____________________________________________________________________________
 Int_t THcDriftChamberPlane::DefineVariables( EMode mode )
 {
@@ -348,13 +361,14 @@ Int_t THcDriftChamberPlane::ProcessHits(TClonesArray* rawhits, Int_t nexthit)
       fNRawhits++;
       /* Sort into early, late and ontime */
       Int_t rawnorefcorrtdc = hit->GetRawTdcHit().GetTimeRaw(mhit); // Get the ref time subtracted time
-       Int_t rawtdc = hit->GetRawTdcHit().GetTime(mhit); // Get the ref time subtracted time
+      Int_t rawtdc = hit->GetRawTdcHit().GetTime(mhit); // Get the ref time subtracted time
       if(rawtdc < fTdcWinMin) {
 	// Increment early counter  (Actually late because TDC is backward)
       } else if (rawtdc > fTdcWinMax) {
 	// Increment late count
       } else {
-	Double_t time = - rawtdc*fNSperChan + fPlaneTimeZero - fTzeroWire[wireNum-1]; // fNSperChan > 0 for 1877
+	Double_t time = - rawtdc*fNSperChan + fPlaneTimeZero - wire->GetTOffset(); // fNSperChan > 0 for 1877
+	
 	new( (*fHits)[nextHit++] ) THcDCHit(wire, rawnorefcorrtdc,rawtdc, time, this);
 	break;			// Take just the first hit in the time window
       }
@@ -367,11 +381,91 @@ Int_t THcDriftChamberPlane::SubtractStartTime()
 {
   Double_t StartTime = 0.0;
   if( fglHod ) StartTime = fglHod->GetStartTime();
-   for(Int_t ihit=0;ihit<GetNHits();ihit++) { 
-     THcDCHit *thishit = (THcDCHit*) fHits->At(ihit);
-     Double_t temptime= thishit->GetTime()-StartTime;
-     thishit->SetTime(temptime);
-     thishit->ConvertTimeToDist();
-   }
+  for(Int_t ihit=0;ihit<GetNHits();ihit++) { 
+    THcDCHit *thishit = (THcDCHit*) fHits->At(ihit);
+    Double_t temptime= thishit->GetTime()-StartTime;
+    thishit->SetTime(temptime);
+    thishit->ConvertTimeToDist();
+  }
   return 0;
+}
+Int_t THcDriftChamberPlane::GetReadoutSide(Int_t wirenum)
+{
+  Int_t readoutside;
+  //if new HMS
+  if (fVersion == 1) {
+    if ((fPlaneNum>=3 && fPlaneNum<=4) || (fPlaneNum>=9 && fPlaneNum<=10)) {
+      if (fReadoutTB>0) {
+	if (wirenum < 60) {
+	  readoutside = 2;
+	} else {
+	  readoutside = 4;
+	}
+      } else {
+	if (wirenum < 44) {
+	  readoutside = 4;
+	} else {
+	  readoutside = 2;
+	}
+      }
+    } else {
+      if (fReadoutTB>0) {
+	if (wirenum < 51) {
+	  readoutside = 2;
+	} else if (wirenum >= 51 && wirenum <= 64) {
+	  readoutside = 1;
+	} else {
+	  readoutside =4;
+	}
+      } else {
+	if (wirenum < 33) {
+	  readoutside = 4;
+	} else if (wirenum >=33 && wirenum<=46) {
+	  readoutside = 1;
+	} else {
+	  readoutside = 2;
+	}
+      }
+    }
+  } else {//appplies SHMS DC configuration
+    //check if x board
+    if ((fPlaneNum>=3 && fPlaneNum<=4) || (fPlaneNum>=9 && fPlaneNum<=10)) {
+      if (fReadoutTB>0) {
+	if (wirenum < 49) {
+	  readoutside = 4;
+	} else {
+	  readoutside = 2;
+	}
+      } else {
+	if (wirenum < 33) {
+	  readoutside = 2;
+	} else {
+	  readoutside = 4;
+	}
+      }
+    } else { //else is u board
+      if (fReadoutTB>0) {
+	if (wirenum < 41) {
+	  readoutside = 4;
+	} else if (wirenum >= 41 && wirenum <= 63) {
+	  readoutside = 3;
+	} else if (wirenum >=64 && wirenum <=69) {
+	  readoutside = 1;
+	} else {
+	  readoutside = 2;
+	}
+      } else {
+	if (wirenum < 39) {
+	  readoutside = 2;
+	} else if (wirenum >=39 && wirenum<=44) {
+	  readoutside = 1;
+	} else if (wirenum>=45 && wirenum<=67) {
+	  readoutside = 3;
+	} else {
+	  readoutside = 4;
+	}
+      }
+    }
+  }
+  return(readoutside);
 }
