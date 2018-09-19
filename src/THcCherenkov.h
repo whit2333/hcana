@@ -15,6 +15,8 @@ class THcHodoscope;
 
 class THcCherenkov : public THaNonTrackingDetector, public THcHitList {
 
+  using vec = std::vector<Double_t>;
+
  public:
   THcCherenkov(const char* name, const char* description = "", THaApparatus* a = NULL);
   virtual ~THcCherenkov();
@@ -65,15 +67,15 @@ class THcCherenkov : public THaNonTrackingDetector, public THcHitList {
   vector<Int_t>    fNumGoodAdcHits;
   vector<Int_t>    fNumTracksMatched;
   vector<Int_t>    fNumTracksFired;
-  vector<Double_t> fGoodAdcPed;
-  vector<Double_t> fGoodAdcMult;
-  vector<Double_t> fGoodAdcHitUsed;
-  vector<Double_t> fGoodAdcPulseInt;
-  vector<Double_t> fGoodAdcPulseIntRaw;
-  vector<Double_t> fGoodAdcPulseAmp;
-  vector<Double_t> fGoodAdcPulseTime;
-  vector<Double_t> fGoodAdcTdcDiffTime;
-  vector<Double_t> fNpe;
+  vec fGoodAdcPed;
+  vec fGoodAdcMult;
+  vec fGoodAdcHitUsed;
+  vec fGoodAdcPulseInt;
+  vec fGoodAdcPulseIntRaw;
+  vec fGoodAdcPulseAmp;
+  vec fGoodAdcPulseTime;
+  vec fGoodAdcTdcDiffTime;
+  vec fNpe;
 
   Int_t     fNRegions;
   Int_t     fRegionsValueMax;

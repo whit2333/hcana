@@ -292,10 +292,8 @@ Int_t THcCherenkov::DefineVariables( EMode mode )
   RVarDef vars[] = {
     {"adcCounter",   "ADC counter numbers",            "frAdcPulseIntRaw.THcSignalHit.GetPaddleNumber()"},
     {"adcErrorFlag", "Error Flag for When FPGA Fails", "fAdcErrorFlag.THcSignalHit.GetData()"},
-
     {"numGoodAdcHits",    "Number of Good ADC Hits Per PMT", "fNumGoodAdcHits"},    // Cherenkov occupancy
     {"totNumGoodAdcHits", "Total Number of Good ADC Hits",   "fTotNumGoodAdcHits"}, // Cherenkov multiplicity
-
     {"numTracksMatched",    "Number of Tracks Matched Per Region",       "fNumTracksMatched"},
     {"numTracksFired",      "Number of Tracks that Fired Per Region",    "fNumTracksFired"},
     {"totNumTracksMatched", "Total Number of Tracks Matched Per Region", "fTotNumTracksMatched"},

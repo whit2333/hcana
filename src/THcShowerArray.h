@@ -81,7 +81,9 @@ public:
 
   Double_t GetEarray() {
     return fEarray;
-  };
+  }
+
+  Double_t* GetGains(){ return fGain; }
 
   // Fiducial volume limits.
   Double_t fvXmin();

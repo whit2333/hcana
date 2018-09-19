@@ -6,6 +6,14 @@
 #pragma link off all classes;
 #pragma link off all functions;
  
+
+#pragma link C++ nestedclass;
+#pragma link C++ nestedtypedef;
+
+#pragma link C++ namespace hallc;
+#pragma link C++ namespace hcana;
+
+
 #pragma link C++ global gHcParms;
 #pragma link C++ global gHcDetectorMap;
  
@@ -48,6 +56,7 @@
 #pragma link C++ class THcRawHit+;
 #pragma link C++ class THcRawHodoHit+;
 #pragma link C++ class THcRawShowerHit+;
+#pragma link C++ class THcRawShowerHit+;
 #pragma link C++ class THcRawTdcHit+;
 #pragma link C++ class THcReactionPoint+;
 #pragma link C++ class THcRun+;
@@ -66,5 +75,8 @@
 #pragma link C++ class THcTrigDet+;
 #pragma link C++ class THcTrigRawHit+;
 #pragma link C++ class Decoder::TIBlobModule+;
+
+#pragma link C++ class hcana::Shower2+;
+
 // Postamble for HallC_Linkdef.h file
 #endif
