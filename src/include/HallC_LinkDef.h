@@ -6,7 +6,6 @@
 #pragma link off all classes;
 #pragma link off all functions;
  
-
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;
 
@@ -55,7 +54,6 @@
 #pragma link C++ class THcRawDCHit+;
 #pragma link C++ class THcRawHit+;
 #pragma link C++ class THcRawHodoHit+;
-#pragma link C++ class THcRawShowerHit+;
 #pragma link C++ class THcRawShowerHit+;
 #pragma link C++ class THcRawTdcHit+;
 #pragma link C++ class THcReactionPoint+;

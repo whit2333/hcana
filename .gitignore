@@ -60,3 +60,4 @@ examples/cache
 # Working directories
 work
 build*
+build/
