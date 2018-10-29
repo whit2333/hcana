@@ -23,7 +23,6 @@ using namespace ccdb;
 using namespace std;
 
 
-
 class THcParmList : public THaVarList {
 
 public:
@@ -34,6 +33,8 @@ public:
   virtual void Load( const char *fname, Int_t RunNumber=0);
 
   virtual void PrintFull(Option_t *opt="") const;
+
+  std::string  PrintJSON(int run_number = 0) const;
 
   const char* GetString(const std::string& name) const {
     return(TextList->Get(name, 0));
@@ -75,5 +76,23 @@ protected:
   ClassDef(THcParmList,0) // List of analyzer global parameters
 
 };
+
+
+namespace hcana{
+  namespace json {
+
+    template<typename T = double>
+    T FindVarValueOr(THcParmList* parms, std::string var, T value){
+      auto p = parms->Find(var.c_str());
+      if(!p) {
+        return value;
+      }
+      const auto res = static_cast<const T*>(p->GetDataPointer());
+      return *res;
+    }
+
+  }
+}
+
 #endif
 

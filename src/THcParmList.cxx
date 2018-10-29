@@ -40,6 +40,10 @@ An instance of THaTextvars is created to hold the string parameters.
 
 #define INCLUDESTR "#include"
 
+#include <iomanip>
+
+#include "TBufferJSON.h"
+#include "nlohmann/json.hpp"
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "TSystem.h"
@@ -121,13 +125,13 @@ The ENGINE CTP support parameter "blocks" which were marked with
   Int_t nfiles=0;
   ifiles[nfiles].open(fname);
   if(ifiles[nfiles].is_open()) {
-    cout << "Opening parameter file: [" << nfiles << "] " << fname << endl;
+    //cout << "Opening parameter file: [" << nfiles << "] " << fname << endl;
     nfiles++;
   }
 
   if(!nfiles) {
     static const char* const here   = "THcParmList::LoadFromFile";
-    Error (here, "error opening parameter file %s",fname);
+    //Error (here, "error opening parameter file %s",fname);
     return;			// Need a success argument returned
   }
 
@@ -141,7 +145,7 @@ The ENGINE CTP support parameter "blocks" which were marked with
 
   if(RunNumber > 0) {
     InRunRange = 0;		// Wait until run number range matching RunNumber is found
-    cout << "Reading Parameters for run " << RunNumber << endl;
+    //cout << "Reading Parameters for run " << RunNumber << endl;
   } else {
     InRunRange = 1;		// Interpret all lines
   }
@@ -674,6 +678,37 @@ Int_t THcParmList::ReadArray(const char* attrC, T* array, Int_t size)
 }
 
 //_____________________________________________________________________________
+
+std::string THcParmList::PrintJSON(int run_number ) const {
+  TIter next(this);
+  nlohmann::json j;
+  while( THaVar* obj = (THaVar*) next() ) {
+
+    if( obj->IsBasic() )  {
+      if( obj->IsArray() )  {
+        if( obj->GetLen() == 1 ) {
+          j[obj->GetName()] = obj->GetValue();
+        } else {
+          j[obj->GetName()] = obj->GetValues();
+        }
+      } else {
+        obj->Print();
+      }
+    } else { 
+      obj->Print();
+    }
+  }
+
+  nlohmann::json jrun;
+  jrun[std::to_string(run_number)] = j;
+  //std::cout << j.dump(2) << "\n";
+  // write prettified JSON to another file
+  //std::ofstream o("pretty.json");
+  //o << std::setw(4) << jrun << std::endl;
+  return jrun.dump();
+}
+
+
 void THcParmList::PrintFull( Option_t* option ) const
 {
   THaVarList::PrintFull(option);

@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(hcana VERSION 0.90 LANGUAGES CXX)
 
-option(HCANA_BUILTIN_PODD "Use built-in Podd submodule (default: YES)" ON)
+option(HCANA_BUILTIN_PODD "Use built-in Podd submodule (default: YES)" OFF)
+
+find_package(ROOT 6.0 REQUIRED CONFIG)
+include(${ROOT_USE_FILE})
 
 #----------------------------------------------------------------------------
 # Set up Podd and ROOT dependencies
@@ -12,7 +15,6 @@ if(HCANA_BUILTIN_PODD)
     ${CMAKE_MODULE_PATH}
     )
   include(PoddCMakeEnv)
-  find_package(ROOT 5.10 REQUIRED)
 else()
   # Find Podd and register it as a dependency
   # This will also automatically set up ROOT
@@ -22,13 +24,13 @@ else()
 endif()
 
 # Register ROOT dependency - it's in our public interface
-config_add_dependency(ROOT 5.10)
+#config_add_dependency(ROOT 5.10)
 
 #----------------------------------------------------------------------------
 # Set up the compiler flags
-set_compiler_flags("${ROOT_CXX_FLAGS}")
-set_diagnostic_flags(WALL WEXTRA)
-report_build_info()
+#set_compiler_flags("${ROOT_CXX_FLAGS}")
+#set_diagnostic_flags(WALL WEXTRA)
+#report_build_info()
 
 #----------------------------------------------------------------------------
 # Install in GNU-style directory layout
