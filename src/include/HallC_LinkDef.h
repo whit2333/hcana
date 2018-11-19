@@ -41,6 +41,8 @@
 #pragma link C++ class THcHallCSpectrometer+;
 #pragma link C++ class THcHitList+;
 #pragma link C++ class THcHodoEff+;
+#pragma link C++ class THcHelicity+;
+#pragma link C++ class THcHelicityReader+;
 #pragma link C++ class THcHodoHit+;
 #pragma link C++ class THcHodoscope+;
 #pragma link C++ class THcInterface+;
