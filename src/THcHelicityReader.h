@@ -21,8 +21,6 @@ public:
   THcHelicityReader();
   virtual ~THcHelicityReader();
   
-  void Print();
-
   struct ROCinfo {
     Int_t  roc;               // ROC to read out
     Int_t  slot;            // Headers to search for (0 = ignore)
@@ -51,6 +49,8 @@ protected:
   Bool_t fIsQrt;
   Bool_t fIsHelp;
   Bool_t fIsHelm;
+
+  Int_t fADCThreshold;		// Threshold for On/Off of helicity signals
 
   ROCinfo  fROCinfo[kCount];
 
