@@ -234,6 +234,7 @@ Int_t THcScalerEvtHandler::Analyze(THaEvData *evdata)
     if((ret=AnalyzeBuffer(rdata,fOnlySyncEvents))) {
       if (fDebugFile) *fDebugFile << "scaler tree ptr  "<<fScalerTree<<endl;
       if (fScalerTree) fScalerTree->Fill();
+      fScalerTree->AutoSave("SaveSelf");
     }
     return ret;
 
