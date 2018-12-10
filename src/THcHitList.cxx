@@ -186,7 +186,7 @@ Int_t THcHitList::DecodeToHitList( const THaEvData& evdata, Bool_t suppresswarni
 
   if(!fMap) {			// Find the TI slot for ADCs
     // Assumes that all FADCs are in the same crate
-    cout << "Got the Crate map" << endl;
+    //cout << "Got the Crate map" << endl;
     fMap = evdata.GetCrateMap();
     for (Int_t i=0; i < fdMap->GetSize(); i++) { // Look for a FADC250
       THaDetMap::Module* d = fdMap->GetModule(i);
@@ -197,7 +197,7 @@ Int_t THcHitList::DecodeToHitList( const THaEvData& evdata, Bool_t suppresswarni
 	  if(fMap->getModel(d->crate, slot) == 4) {
 	    fTISlot = slot;
 	    fTICrate = d->crate;
-	    cout << "TI Slot = " << fTISlot << endl;
+	    //cout << "TI Slot = " << fTISlot << endl;
 	    break;
 	  }
 	}

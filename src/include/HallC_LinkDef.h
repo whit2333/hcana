@@ -77,6 +77,8 @@
 #pragma link C++ class Decoder::TIBlobModule+;
 
 #pragma link C++ class hcana::Shower2+;
+#pragma link C++ class hcana::Scandalizer+;
+#pragma link C++ class hcana::TrackingEfficiency+;
 
 // Postamble for HallC_Linkdef.h file
 #endif
