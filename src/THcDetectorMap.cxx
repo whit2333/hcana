@@ -411,7 +411,7 @@ void THcDetectorMap::Load(const char *fname)
   for(Int_t i=0; i < fNIDs; i++) {
     //cout << "   ";
     //cout << fIDMap[i].name << " " << fIDMap[i].id << endl;
-  _logger->info(" {:>12} {:<10} ", fIDMap[i].name ,fIDMap[i].id );
+  _logger->info("   {:<10} {:<10} ", fIDMap[i].name ,fIDMap[i].id );
   }
   //cout << endl;
 

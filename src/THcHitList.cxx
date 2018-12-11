@@ -23,10 +23,12 @@ using namespace std;
 #define SUPPRESSMISSINGADCREFTIMEMESSAGES 1
 THcHitList::THcHitList() : fMap(0), fTISlot(0), fDisableSlipCorrection(kFALSE)
 {
-  _hitlist_logger = spdlog::get("hitlist");
+  _hitlist_logger = spdlog::get("hitlst");
   if(!_hitlist_logger) {
-    _hitlist_logger = spdlog::stdout_color_mt("hitlist");
+    _hitlist_logger = spdlog::stdout_color_mt("hitlst");
+    _hitlist_logger->set_pattern("[%t] [%n] %^[%l]%$ %v");
   }
+
   /// Normal constructor.
 
   fRawHitList = NULL;

@@ -141,23 +141,14 @@ Int_t Scandalizer::Process( THaRunBase* run )
     //&& (status = ReadOneEvent()) != THaRunBase::READ_EOF ) 
     //std::cout << " evtype(last) " << fEvData->GetEvType() << "\n";
     status = ReadOneEvent();
-    //std::cout << " status " << status << "\n";
-    //std::cout << " evtype " << fEvData->GetEvType() << "\n";
 
     // If an interupt signal is sent (ctrl-c)
-    // // 
     if(sig_caught) {
       terminate = true;
       break;
     }
-      
 
     if( status == THaRunBase::READ_EOF  ) {
-      //if(  fEvData->GetEvType() != 20 ) {
-      //  std::cout << " sleeping....";
-      //  //gSystem->Sleep(1000);
-      //}else {
-      //}
       break;
     }
 
@@ -175,10 +166,10 @@ Int_t Scandalizer::Process( THaRunBase* run )
     // Count events according to the requested mode
     // Whether or not to ignore events prior to fRun->GetFirstEvent()
     // is up to the analysis routines.
-    switch(fCountMode) {
+    switch (fCountMode) {
     case kCountPhysics:
-      if( fEvData->IsPhysicsTrigger() )
-	fNev++;
+      if (fEvData->IsPhysicsTrigger())
+        fNev++;
       break;
     case kCountAll:
       fNev++;
@@ -194,9 +185,16 @@ Int_t Scandalizer::Process( THaRunBase* run )
     if( (fVerbose>1) && (evnum > 0) && (evnum % fMarkInterval == 0)){
       cout << "test run: "<< fRun->GetNumber() << ", " << dec << evnum << endl;
     }
+    // Auto save file so it is not junk and can be processed while we write
     if( (evnum > 0) &&(evnum % fAutoSaveInterval == 0)){
       fOutput->GetTree()->AutoSave("SaveSelf");
     }
+
+    if(_skip_events > 0 ) {
+      _skip_events--;
+      continue;
+    }
+
 
     //--- Update run parameters with current event
     if( fUpdateRun ){

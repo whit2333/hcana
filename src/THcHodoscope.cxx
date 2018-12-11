@@ -159,7 +159,8 @@ THaAnalysisObject::EStatus THcHodoscope::Init( const TDatime& date )
   EngineDID[0] = toupper(GetApparatus()->GetName()[0]);
   if( gHcDetectorMap->FillMap(fDetMap, EngineDID) < 0 ) {
     static const char* const here = "Init()";
-    Error( Here(here), "Error filling detectormap for %s.", EngineDID );
+    //Error( Here(here), "Error filling detectormap for %s.", EngineDID );
+    _logger->error("Error filling detectormap for {}.",EngineDID);
     return kInitError;
   }
 
@@ -167,7 +168,8 @@ THaAnalysisObject::EStatus THcHodoscope::Init( const TDatime& date )
   // maximum number of hits after setting up the detector map
   // But it needs to happen before the sub detectors are initialized
   // so that they can get the pointer to the hitlist.
-  cout << " Hodo tdc ref time cut = " << fTDC_RefTimeCut << " " << fADC_RefTimeCut << endl;
+  _logger->info("Hodo tdc ref time cut = {} {}", fTDC_RefTimeCut, fADC_RefTimeCut);
+  //cout << " Hodo tdc ref time cut = " << fTDC_RefTimeCut << " " << fADC_RefTimeCut << endl;
 
   InitHitList(fDetMap, "THcRawHodoHit", fDetMap->GetTotNumChan()+1,
 	      fTDC_RefTimeCut, fADC_RefTimeCut);
@@ -516,11 +518,13 @@ Int_t THcHodoscope::ReadDatabase( const TDatime& date )
   }
   //
   if ((fTofTolerance > 0.5) && (fTofTolerance < 10000.)) {
-    cout << "USING "<<fTofTolerance<<" NSEC WINDOW FOR FP NO_TRACK CALCULATIONS.\n";
+    //cout << "USING "<<fTofTolerance<<" NSEC WINDOW FOR FP NO_TRACK CALCULATIONS.\n";
+    _logger->info("Using {} nsec window for fp no_track calculations.",fTofTolerance);
   }
   else {
     fTofTolerance= 3.0;
-    cout << "*** USING DEFAULT 3 NSEC WINDOW FOR FP NO_TRACK CALCULATIONS!! ***\n";
+    //cout << "*** USING DEFAULT 3 NSEC WINDOW FOR FP NO_TRACK CALCULATIONS!! ***\n";
+    _logger->warn("Using default {} nsec window for fp no_track calculations.",fTofTolerance);
   }
   fIsInit = true;
   return kOK;

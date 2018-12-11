@@ -14,8 +14,9 @@ namespace hcana {
 
     virtual Int_t Process(THaRunBase* run = nullptr);
     virtual Int_t ReadOneEvent();
+    //Int_t GoToEndOfCodaFile();
 
-    Int_t GoToEndOfCodaFile();
+    int _skip_events = 0;
 
     ClassDef(Scandalizer, 0) // Hall C Analyzer Standard Event Loop
   };
