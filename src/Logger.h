@@ -18,6 +18,22 @@ namespace hcana {
       if(!_logger) {
         _logger = spdlog::stdout_color_mt("config");
       }
+      _logger->set_pattern("[%t] [%n] %^[%l]%$ %v");
+    }
+
+  };
+
+  template <typename Base>
+  class HitLogging : public Base {
+  protected:
+    std::shared_ptr<spdlog::logger> _hit_logger;
+  public:
+    template <class... Args>
+    HitLogging(Args&&... args) : Base(std::forward<Args>(args)...) {
+      _hit_logger = spdlog::get("hits");
+      if(!_hit_logger) {
+        _hit_logger = spdlog::stdout_color_mt("hits");
+      }
     }
 
   };

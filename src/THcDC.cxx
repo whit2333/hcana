@@ -225,9 +225,9 @@ THaAnalysisObject::EStatus THcDC::Init( const TDatime& date )
 
   // Should probably put this in ReadDatabase as we will know the
   // maximum number of hits after setting up the detector map
-  cout << " DC tdc ref time cut = " << fTDC_RefTimeCut  << endl;
-  InitHitList(fDetMap, "THcRawDCHit", fDetMap->GetTotNumChan()+1,
-	      fTDC_RefTimeCut, 0);
+  _logger->info("DC tdc ref time cut = {} ", fTDC_RefTimeCut);
+  //cout << " DC tdc ref time cut = " << fTDC_RefTimeCut  << endl;
+  InitHitList(fDetMap, "THcRawDCHit", fDetMap->GetTotNumChan()+1, fTDC_RefTimeCut, 0);
 
   CreateMissReportParms(Form("%sdc",fPrefix));
 
@@ -391,11 +391,16 @@ Int_t THcDC::ReadDatabase( const TDatime& date )
    gHcParms->LoadParmValues((DBRequest*)&listOpt,fPrefix);
   if(fNTracksMaxFP <= 0) fNTracksMaxFP = 10;
   // if(fNTracksMaxFP > HNRACKS_MAX) fNTracksMaxFP = NHTRACKS_MAX;
-  cout << "Plane counts:";
+  
+  std::string plane_counts_string;
+  //cout << "Plane counts:";
   for(Int_t i=0;i<fNPlanes;i++) {
-    cout << " " << fNWires[i];
+    //cout << " " << fNWires[i];
+    plane_counts_string += std::string(" ");
+    plane_counts_string += std::to_string(fNWires[i]);
   }
-  cout << endl;
+  //cout << endl;
+  _logger->info("Plane counts: {}", plane_counts_string);
 
   fIsInit = true;
 
