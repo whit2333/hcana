@@ -23,9 +23,9 @@ Int_t Scandalizer::ReadOneEvent()
 
   // there may be a better place to do this, but this works
   if (fWantCodaVers > 0) {
-    fEvData->SetCodaVersion(fWantCodaVers);
+    fEvData->SetDataVersion(fWantCodaVers);
   } else {
-    fEvData->SetCodaVersion(fRun->GetCodaVersion());
+    fEvData->SetDataVersion(fRun->GetDataVersion());
   }
 
   switch( status ) {
