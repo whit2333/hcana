@@ -26,7 +26,7 @@ using namespace std;
 //_____________________________________________________________________________
 THcHelicity::THcHelicity( const char* name, const char* description,
 				    THaApparatus* app ):
-  THaHelicityDet( name, description, app ), 
+  hcana::ConfigLogging<THaHelicityDet>( name, description, app ), 
   fnQrt(-1), fHelDelay(8), fMAXBIT(30)
 {
   //  for( Int_t i = 0; i < NHIST; ++i )
@@ -37,7 +37,7 @@ THcHelicity::THcHelicity( const char* name, const char* description,
 
 //_____________________________________________________________________________
 THcHelicity::THcHelicity()
-  : fnQrt(-1), fHelDelay(8), fMAXBIT(30)
+  : hcana::ConfigLogging<THaHelicityDet>(),fnQrt(-1), fHelDelay(8), fMAXBIT(30)
 {
   // Default constructor for ROOT I/O
 

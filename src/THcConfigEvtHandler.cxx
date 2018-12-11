@@ -38,13 +38,8 @@
 using namespace std;
 
 THcConfigEvtHandler::THcConfigEvtHandler(const char *name, const char* description)
-  : THaEvtTypeHandler(name,description)
+  : hcana::ConfigLogging<THaEvtTypeHandler>(name,description)
 {
-  //Create and return a shared_ptr to a multithreaded console logger.
-  _logger = spdlog::get("config");
-  if(!_logger) {
-    _logger = spdlog::stdout_color_mt("config");
-  }
 }
 
 THcConfigEvtHandler::~THcConfigEvtHandler()
