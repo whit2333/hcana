@@ -44,7 +44,9 @@
 #include <iostream>
 #include <stdexcept>
 
-class THcAnalyzer : public THaAnalyzer {
+#include "Logger.h"
+
+class THcAnalyzer : public hcana::ConfigLogging<THaAnalyzer> {
 
 public:
 
