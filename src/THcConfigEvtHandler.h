@@ -15,7 +15,13 @@
 #include <vector>
 #include <map>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h" //support for stdout logging
+#include "spdlog/sinks/basic_file_sink.h" // support for basic file logging
+
 class THcConfigEvtHandler : public THaEvtTypeHandler {
+private:
+  std::shared_ptr<spdlog::logger> _logger;
 
 public:
 

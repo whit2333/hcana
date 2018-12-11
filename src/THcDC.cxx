@@ -33,13 +33,18 @@ the number of parameters per plane.
 #include <cstdlib>
 #include <iostream>
 
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h" //support for stdout logging
+#include "spdlog/sinks/basic_file_sink.h" // support for basic file logging
+
+
 using namespace std;
 
 //_____________________________________________________________________________
 THcDC::THcDC(
  const char* name, const char* description,
 				  THaApparatus* apparatus ) :
-  THaTrackingDetector(name,description,apparatus)
+  hcana::ConfigLogging<THaTrackingDetector>(name,description,apparatus)
 {
   // Constructor
 
@@ -86,6 +91,12 @@ THcDC::THcDC(
 
   //The version defaults to 0 (old HMS style). 1 is new HMS style and 2 is SHMS style.
   fVersion = 0;
+
+  //Create and return a shared_ptr to a multithreaded console logger.
+  //_logger = spdlog::get("config");
+  //if(!_logger) {
+  //  _logger = spdlog::stdout_color_mt("config");
+  //}
 }
 
 //_____________________________________________________________________________
@@ -131,14 +142,18 @@ void THcDC::Setup(const char* name, const char* description)
     fHMSStyleChambers = 0;
   }
 
-
-  cout << "Plane Name List: " << planenamelist << endl;
-  cout << "Drift Chambers: " <<  fNPlanes << " planes in " << fNChambers << " chambers" << endl;
+  _logger->info("Plane Name List: {}", planenamelist);
+  _logger->info("Drift Chambers: {} planes in {} chambers", fNPlanes, fNChambers);
+  //cout << "Plane Name List: " << planenamelist << endl;
+  //cout << "Drift Chambers: " <<  fNPlanes << " planes in " << fNChambers << " chambers" << endl;
 
   vector<string> plane_names = vsplit(planenamelist);
 
   if(plane_names.size() != (UInt_t) fNPlanes) {
-    cout << "ERROR: Number of planes " << fNPlanes << " doesn't agree with number of plane names " << plane_names.size() << endl;
+    //cout << "ERROR: Number of planes " << fNPlanes << " doesn't agree with number of plane names " << plane_names.size() << endl;
+    _logger->error("ERROR: Number of planes {} doesn't agree with number of plane names {}",
+                   fNPlanes, plane_names.size());
+
     // Should quit.  Is there an official way to quit?
   }
   fPlaneNames = new char* [fNPlanes];
@@ -177,7 +192,8 @@ void THcDC::Setup(const char* name, const char* description)
     // Should construct a better chamber name
     THcDriftChamber* newchamber = new THcDriftChamber(desc1, desc, i+1, this);
     fChambers.push_back(newchamber);
-    cout << "Created Drift Chamber " << i+1 << ", " << desc1 << endl;
+    //cout << "Created Drift Chamber " << i+1 << ", " << desc1 << endl;
+    _logger->info("Created Drift Chamber {}, {}" , i+1 , desc1);
     newchamber->SetHMSStyleFlag(fHMSStyleChambers); // Tell the chamber its style
   }
   delete [] desc;
@@ -186,7 +202,7 @@ void THcDC::Setup(const char* name, const char* description)
 
 //_____________________________________________________________________________
 THcDC::THcDC( ) :
-  THaTrackingDetector()
+  hcana::ConfigLogging<THaTrackingDetector>()
 {
   // Constructor
 }

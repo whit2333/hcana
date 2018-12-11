@@ -31,12 +31,20 @@
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h" //support for stdout logging
+#include "spdlog/sinks/basic_file_sink.h" // support for basic file logging
 
 using namespace std;
 
 THcConfigEvtHandler::THcConfigEvtHandler(const char *name, const char* description)
   : THaEvtTypeHandler(name,description)
 {
+  //Create and return a shared_ptr to a multithreaded console logger.
+  _logger = spdlog::get("config");
+  if(!_logger) {
+    _logger = spdlog::stdout_color_mt("config");
+  }
 }
 
 THcConfigEvtHandler::~THcConfigEvtHandler()
@@ -353,7 +361,7 @@ void THcConfigEvtHandler::AddEventType(Int_t evtype)
 THaAnalysisObject::EStatus THcConfigEvtHandler::Init(const TDatime& date)
 {
 
-  cout << "Howdy !  We are initializing THcConfigEvtHandler !!   name =   "<<fName<<endl;
+  _logger->info("Howdy !  We are initializing THcConfigEvtHandler !!   name = {}",fName.Data());
 
   if(eventtypes.size()==0) {
     eventtypes.push_back(125);  // what events to look for

@@ -49,7 +49,7 @@ using std::vector;
 //_____________________________________________________________________________
 THcHodoscope::THcHodoscope( const char* name, const char* description,
 				  THaApparatus* apparatus ) :
-  THaNonTrackingDetector(name,description,apparatus)
+  hcana::ConfigLogging<THaNonTrackingDetector>(name,description,apparatus)
 {
   // Constructor
 
@@ -62,7 +62,7 @@ THcHodoscope::THcHodoscope( const char* name, const char* description,
 
 //_____________________________________________________________________________
 THcHodoscope::THcHodoscope( ) :
-  THaNonTrackingDetector()
+  hcana::ConfigLogging<THaNonTrackingDetector>()
 {
   // Constructor
 }
@@ -107,7 +107,8 @@ void THcHodoscope::Setup(const char* name, const char* description)
   fADC_RefTimeCut = 0;
   gHcParms->LoadParmValues((DBRequest*)&listextra,prefix);
 
-  cout << "Plane Name List : " << planenamelist << endl;
+  _logger->info("Plane Name List : {}" , planenamelist);
+  //cout << "Plane Name List : " << planenamelist << endl;
 
   vector<string> plane_names = vsplit(planenamelist);
   // Plane names
@@ -129,7 +130,7 @@ void THcHodoscope::Setup(const char* name, const char* description)
     strcat(desc, " Plane ");
     strcat(desc, fPlaneNames[i]);
     fPlanes[i] = new THcScintillatorPlane(fPlaneNames[i], desc, i+1, this); // Number planes starting from zero!!
-    cout << "Created Scintillator Plane " << fPlaneNames[i] << ", " << desc << endl;
+    //cout << "Created Scintillator Plane " << fPlaneNames[i] << ", " << desc << endl;
   }
 
   // Save the nominal particle mass

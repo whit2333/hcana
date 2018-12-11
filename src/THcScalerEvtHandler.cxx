@@ -589,8 +589,8 @@ THaAnalysisObject::EStatus THcScalerEvtHandler::Init(const TDatime& date)
 
   fDelayedEvents.clear();
 
-  cout << "Howdy !  We are initializing THcScalerEvtHandler !!   name =   "
-        << fName << endl;
+  //cout << "Howdy !  We are initializing THcScalerEvtHandler !!   name =   "
+  //      << fName << endl;
 
   if(eventtypes.size()==0) {
     eventtypes.push_back(0);  // Default Event Type
