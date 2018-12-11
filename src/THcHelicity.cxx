@@ -88,7 +88,8 @@ void THcHelicity::Setup(const char* name, const char* description) {
 Int_t THcHelicity::ReadDatabase( const TDatime& date )
 {
 
-  cout << "In THcHelicity::ReadDatabase" << endl;
+  _logger->info("In THcHelicity::ReadDatabase");
+  //cout << "In THcHelicity::ReadDatabase" << endl;
   // Read general HelicityDet database values (e.g. fSign)
   //  Int_t st = THaHelicityDet::ReadDatabase( date );
   //  if( st != kOK )
@@ -153,8 +154,9 @@ Int_t THcHelicity::DefineVariables( EMode mode )
 {
   // Initialize global variables
 
-  cout << "Called THcHelicity::DefineVariables with mode == "
-       << mode << endl;
+  _logger->info("Called THcHelicity::DefineVariables with mode == {}", mode);
+  //cout << "Called THcHelicity::DefineVariables with mode == "
+  //     << mode << endl;
 
   if( mode == kDefine && fIsSetup ) return kOK;
   fIsSetup = ( mode == kDefine );
@@ -170,7 +172,8 @@ Int_t THcHelicity::DefineVariables( EMode mode )
     { "mps", "In MPS blanking period", "fMPS"},
     { 0 }
   };
-  cout << "Calling THcHelicity DefineVarsFromList" << endl;
+  //cout << "Calling THcHelicity DefineVarsFromList" << endl;
+  _logger->info("Calling THcHelicity DefineVarsFromList");
   return DefineVarsFromList( var, mode );
 }
 //_____________________________________________________________________________
@@ -317,25 +320,30 @@ Int_t THcHelicity::Decode( const THaEvData& evdata )
 	  if((abs(fQuartet[0]+fQuartet[3]-fQuartet[1]-fQuartet[2])==4)) {
 	    if(!fFoundQuartet) {
 	      //	      fFirstCycle = fNCycle - 3;
-	      cout << "Quartet potentially found, starting at cycle " << fFirstCycle
-		   << " - event " << evdata.GetEvNum() << endl;
-	      fFoundQuartet = kTRUE;
+              _logger->info("Quartet potentially found, starting at cycle {} - event {}", fFirstCycle, evdata.GetEvNum());
+              //cout << "Quartet potentially found, starting at cycle " << fFirstCycle << " - event "
+              //     << evdata.GetEvNum() << endl;
+              fFoundQuartet = kTRUE;
 	    }
 	  } else {
 	    if(fNCycle - fFirstCycle > 4) { // Not at start of run.  Reset
-	      cout << "Lost quartet sync at cycle " << fNCycle << " - event "
-		   << evdata.GetEvNum() << endl;
-	      cout << fQuartet[0] << " "  << fQuartet[1] << " "  << fQuartet[2] << " "
-		   << fQuartet[3] << endl;
-	      
-	      fFirstCycle += 4*((fNCycle-fFirstCycle)/4); // Update, but don't change phase
+              _logger->info("Lost quartet sync at cycle {} - event {}", fNCycle,evdata.GetEvNum());
+              _logger->info("{} {} {} {}",fQuartet[0],fQuartet[1],fQuartet[2],fQuartet[3]);
+              //cout << "Lost quartet sync at cycle " << fNCycle << " - event " << evdata.GetEvNum()
+              //     << endl;
+              //cout << fQuartet[0] << " " << fQuartet[1] << " " << fQuartet[2] << " " << fQuartet[3]
+              //     << endl;
+
+              fFirstCycle += 4*((fNCycle-fFirstCycle)/4); // Update, but don't change phase
 	    }
 	    fFoundQuartet = kFALSE;
-	    fNBits = 0;
-	    cout << "Searching for first of a quartet at cycle " << " " << fFirstCycle
-		 << " - event " << evdata.GetEvNum() << endl;
-	    cout << fQuartet[0] << " "  << fQuartet[1] << " "  << fQuartet[2] << " "
-		 << fQuartet[3] << endl;
+            fNBits        = 0;
+            _logger->info("Searching for first of a quartet at cycle {} - event {}", fFirstCycle, evdata.GetEvNum());
+            //cout << "Searching for first of a quartet at cycle "
+            //     << " " << fFirstCycle << " - event " << evdata.GetEvNum() << endl;
+            //cout << fQuartet[0] << " " << fQuartet[1] << " " << fQuartet[2] << " " << fQuartet[3]
+            //     << endl;
+            _logger->info("{} {} {} {}", fQuartet[0], fQuartet[1], fQuartet[2], fQuartet[3]);
 	    fFirstCycle++;
 	  }
 	}
@@ -380,8 +388,8 @@ Int_t THcHelicity::End( THaRunBase* )
 
   return 0;
 }
-
 //_____________________________________________________________________________
+
 void THcHelicity::SetDebug( Int_t level )
 {
   // Set debug level of this detector as well as the THcHelicityReader 
@@ -390,8 +398,8 @@ void THcHelicity::SetDebug( Int_t level )
   THaHelicityDet::SetDebug( level );
   fQWEAKDebug = level;
 }
-
 //_____________________________________________________________________________
+
 void THcHelicity::LoadHelicity(Int_t reportedhelicity, Int_t cyclecount, Int_t missedcycles)
 {
   //  static const char* const here = "THcHelicity::LoadHelicity";

@@ -73,7 +73,7 @@ static const UInt_t MAXCHAN   = 32;
 static const UInt_t defaultDT = 4;
 
 THcScalerEvtHandler::THcScalerEvtHandler(const char *name, const char* description)
-  : THaEvtTypeHandler(name,description), evcount(0), evcountR(0.0), ifound(0), fNormIdx(-1),
+  : hcana::ConfigLogging<THaEvtTypeHandler>(name,description), evcount(0), evcountR(0.0), ifound(0), fNormIdx(-1),
     fNormSlot(-1),
     dvars(0),dvars_prev_read(0), dvarsFirst(0), fScalerTree(0), fUseFirstEvent(kTRUE),
     fOnlySyncEvents(kFALSE), fOnlyBanks(kFALSE), fDelayedType(-1),
