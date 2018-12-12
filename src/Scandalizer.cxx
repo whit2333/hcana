@@ -1,4 +1,5 @@
 #include "Scandalizer.h"
+#include "THaRun.h"
 
 using namespace std;
 
@@ -18,6 +19,18 @@ Int_t Scandalizer::ReadOneEvent()
 
   // Find next event buffer in CODA file. Quit if error.
   Int_t status = THaRunBase::READ_OK;
+
+  while(_skip_events > 0  ) {
+    std::cout << _skip_events << " skipping\n";
+    int skipped = 0;
+    auto run =  dynamic_cast<THaRun*>(fRun);
+    if( run ) {
+      skipped = run->SkipToEndOfFile(_skip_events);
+    }
+    _skip_events = 0;
+    std::cout << skipped << " skipped\n";
+    continue;
+  }
   if (to_read_file)
     status = fRun->ReadEvent();
 
@@ -190,10 +203,6 @@ Int_t Scandalizer::Process( THaRunBase* run )
       fOutput->GetTree()->AutoSave("SaveSelf");
     }
 
-    if(_skip_events > 0 ) {
-      _skip_events--;
-      continue;
-    }
 
 
     //--- Update run parameters with current event
