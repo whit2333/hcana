@@ -36,12 +36,16 @@ hodoscope array, not just one plane.
 #include "THaTrackProj.h"
 #include <vector>
 
+#include <algorithm>
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <array>
+
+#include "hcana/helpers.hxx"
 
 using namespace std;
 using std::vector;
@@ -1450,23 +1454,18 @@ Int_t THcHodoscope::CoarseProcess( TClonesArray& tracks )
 //
 void THcHodoscope::TrackEffTest(void)
 {
-  Double_t PadLow[4];
-  Double_t PadHigh[4];
+  //Double_t PadLow[4];
+  //Double_t PadHigh[4];
   // assume X planes are 0,2 and Y planes are 1,3
-  PadLow[0]=fxLoScin[0];
-  PadLow[2]=fxLoScin[1];
-  PadLow[1]=fyLoScin[0];
-  PadLow[3]=fyLoScin[1];
-  PadHigh[0]=fxHiScin[0];
-  PadHigh[2]=fxHiScin[1];
-  PadHigh[1]=fyHiScin[0];
-  PadHigh[3]=fyHiScin[1];
-  //
-  Double_t PadPosLo[4];
-  Double_t PadPosHi[4];
+  std::array<int,4> PadLow = {fxLoScin[0], fyLoScin[0], fxLoScin[1], fyLoScin[1]};
+  std::array<int,4> PadHigh = {fxHiScin[0], fyHiScin[0], fxHiScin[1], fyHiScin[1]};
+  
+  std::array<double,4> PadPosLo;
+  std::array<double,4> PadPosHi;
+
   for (Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ){
-    Double_t lowtemp=fPlanes[ip]->GetPosCenter(PadLow[ip]-1)+ fPlanes[ip]->GetPosOffset();
-    Double_t hitemp=fPlanes[ip]->GetPosCenter(PadHigh[ip]-1)+ fPlanes[ip]->GetPosOffset();
+    Double_t lowtemp = fPlanes[ip]->GetPosCenter(PadLow[ip] - 1) + fPlanes[ip]->GetPosOffset();
+    Double_t hitemp  = fPlanes[ip]->GetPosCenter(PadHigh[ip] - 1) + fPlanes[ip]->GetPosOffset();
     if (lowtemp < hitemp) {
       PadPosLo[ip]=lowtemp;
       PadPosHi[ip]=hitemp;
@@ -1476,84 +1475,234 @@ void THcHodoscope::TrackEffTest(void)
     }
   }  
   //
-  const Int_t MaxNClus=5;
-  std::vector<Int_t > iw(MaxNClus,0);
-  std::vector<Double_t > dw(MaxNClus,0);
+  const Int_t           MaxNClus = 5;
+  std::vector<Int_t>    iw(MaxNClus, 0);
+  std::vector<Double_t> dw(MaxNClus, 0);
   for(Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ) {
     fNClust.push_back(0);
     fClustSize.push_back(iw);
     fClustPos.push_back(dw);
   }
+
+  //{
+  //  std::vector<int>  test_vector = {1,2,5,6,7, 9,10, 20};
+  //  auto test_res = hcana::find_discontinuity(test_vector);
+  //  std::cout << " find_discontinuity    test: " << *test_res << "\n";
+  //  std::cout << " count_discontinuities test: " << hcana::count_discontinuities(test_vector)
+  //            << "\n";
+  //  auto cont_ranges  = hcana::get_discontinuities(test_vector);
+  //  int ir = 0;
+  //    std::cout << "ranges: \n";
+  //  for(auto r : cont_ranges) {
+  //    for(auto v = r.first; v< r.second; v++) {
+  //      std::cout << *v << " ";
+  //    }
+  //    std::cout << "\n";
+  //  }
+  //}
+  //{
+  //  std::vector<int>  test_vector = {0,2,4,8,10,12,13, 16,18,20,23};
+  //  auto              test_res    = hcana::find_discontinuity(
+  //      test_vector, [](const int& x1, const int& x2) { return x1 + 2 == x2; });
+  //  std::cout << " find_discontinuity test2: " << *test_res << "\n";
+  //  std::cout << " count_discontinuities test2: "
+  //            << hcana::count_discontinuities(
+  //                   test_vector, [](const int& x1, const int& x2) { return x1 + 2 == x2; })
+  //            << "\n";
+  //}
+
+  using hit_iter = std::vector<THcHodoHit*>::iterator;
+  using HitRangeVector = typename std::vector<std::pair<hit_iter, hit_iter>>;
+  using ClusterPositions = typename std::vector<double>;
+  std::vector<std::vector<THcHodoHit*>> hit_vecs;
+  std::vector<HitRangeVector>           hit_clusters;
+  std::vector<ClusterPositions>         pos_clusters;
+  std::vector<std::vector<int>>         good_clusters;
+  std::array<int,4>                     n_good_clusters;
+  // Loop over each plane
   for (Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ){
+
+    // Get the hit array
     TClonesArray* hodoHits = fPlanes[ip]->GetHits();
-    Int_t prev_padnum=-100;
+
+    // Create vector for good hits.
+    hit_vecs.push_back(std::vector<THcHodoHit*>());
     for (Int_t iphit = 0; iphit < fPlanes[ip]->GetNScinHits(); iphit++ ){
       THcHodoHit *hit = (THcHodoHit*)hodoHits->At(iphit);
-      Int_t padnum  = hit->GetPaddleNumber();
+      // keep only those with "two good times"
       if ( hit->GetTwoGoodTimes() ) {
-	if ( padnum==prev_padnum+1 ) {
-	  fClustSize[ip][fNClust[ip]-1]=fClustSize[ip][fNClust[ip]-1]+1;
-	  fClustPos[ip][fNClust[ip]-1]=fClustPos[ip][fNClust[ip]-1]+fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset();
-	  //  cout << "Add to cluster  pl = " << ip+1 << " hit = " << iphit << " pad = " << padnum << " clus =  " << fNClust[ip] << " cl size = " << fClustSize[ip][fNClust[ip]-1] << " pos " << fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset() << endl;
-	} else {
-	  if (fNClust[ip]<MaxNClus) fNClust[ip]++;
-	  fClustSize[ip][fNClust[ip]-1]=1;
-	  fClustPos[ip][fNClust[ip]-1]=fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset();
-	  //  cout << " New clus pl = " << ip+1 << " hit = " << iphit << " pad = " << padnum << " clus = " << fNClust[ip] << " cl size = " << fClustSize[ip][fNClust[ip]] << " pos " << fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset() << endl;
-	}
-	prev_padnum=padnum;
+        hit_vecs[ip].push_back(hit);
+      }
+    }
+
+    // Cluster (group adjacent) hits 
+    if( hit_vecs[ip].size() > 0 ) {
+      auto& hv = hit_vecs[ip];
+      hcana::sort(hv, [](const THcHodoHit* h1, const THcHodoHit* h2) {
+            return h1->GetPaddleNumber() < h2->GetPaddleNumber();
+      });
+
+      // get the clusters for this layer
+      hit_clusters.push_back(
+          hcana::get_discontinuities(hv, [](const THcHodoHit* h1, const THcHodoHit* h2) {
+            return h1->GetPaddleNumber() + 1 == h2->GetPaddleNumber();
+          }));
+    } else {
+      hit_clusters.push_back( HitRangeVector{} );
+    } 
+
+    // Calculate each cluster's mean position (in one coordinate)
+    ClusterPositions clust_positions;
+    std::vector<int> clust_bound;
+    for(auto& r : hit_clusters.back()) {
+      double a_pos  = 0.0;
+      int    n_hit = 0;
+      for(auto chit = r.first; chit < r.second; chit++) {
+        a_pos += fPlanes[ip]->GetPosCenter((*chit)->GetPaddleNumber()-1) + fPlanes[ip]->GetPosOffset();
+        n_hit++;
+      }
+      // take the average position
+      double avg_pos = a_pos / double(n_hit);
+      // Calculate if it is the bound by the upper and lower limits where we expect
+      // full tracks to be reconstructed.
+      int is_bound = int((avg_pos >= PadPosLo[ip]) &&  (avg_pos <= PadPosHi[ip]));
+      clust_bound.push_back(is_bound);
+      if(is_bound) {
+      // we are only interested in clusters positioned inthe "sweet spot"
+        clust_positions.push_back(avg_pos);
+        n_good_clusters[ip]++;
+        if (n_hit > 10) {
+          _logger->warn("cluster in hodoscope track efficiency has {} hits", n_hit);
+        }
+      }
+    }
+    pos_clusters.push_back(clust_positions);
+    good_clusters.push_back(clust_bound);
+    //_logger->info("{} clusters in Hod plane {}", hit_clusters.back().size(), ip );
+  }
+
+  bool has_both_x_clusters          = (n_good_clusters[0] > 0) && (n_good_clusters[2] > 0);
+  bool has_both_y_clusters          = (n_good_clusters[1] > 0) && (n_good_clusters[3] > 0);
+  bool at_least_one_good_x_clusters = (n_good_clusters[0] > 0) || (n_good_clusters[2] > 0);
+  bool at_least_one_good_y_clusters = (n_good_clusters[1] > 0) || (n_good_clusters[3] > 0);
+  bool good_x_match = false;
+  bool good_y_match = false;
+
+  // Superficial matching. Find out if clusters in front and back could possibly belong to the same
+  // track. This done by checking to see if the position differences  are less than 10 cm;
+  // ie, |x1-x2|<10  or |y1-y2| <10
+  // TODO do actual matching with tracks elsewhere
+  if(has_both_x_clusters) {
+    for(auto x1_pos : pos_clusters[0] ) {
+      for(auto x2_pos : pos_clusters[2] ) {
+        if( std::abs(x1_pos-x2_pos) < 10.0) {
+          good_x_match = true;
+          break;
+        }
       }
     }
   }
-  //
-  Bool_t inside_bound[4]={kFALSE,kFALSE,kFALSE,kFALSE};
-  for(Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ) {	 
-    for(Int_t ic = 0; ic <fNClust[ip] ; ic++ ) {
-      fClustPos[ip][ic]=fClustPos[ip][ic]/fClustSize[ip][ic];
-      inside_bound[ip] = fClustPos[ip][ic]>=PadPosLo[ip] &&  fClustPos[ip][ic]<=PadPosHi[ip];
-      //cout << "plane = " << ip+1 << " Cluster = " << ic+1 << " size = " << fClustSize[ip][ic]<< " pos = " << fClustPos[ip][ic] << " inside = " << inside_bound[ip] << " lo = " << PadPosLo[ip]<< " hi = " << PadPosHi[ip]<< endl;
+  if(has_both_y_clusters) {
+    for(auto y1_pos : pos_clusters[1] ) {
+      for(auto y2_pos : pos_clusters[3] ) {
+        if( std::abs(y1_pos-y2_pos) < 10.0) {
+          good_y_match = true;
+          break;
+        }
+      }
     }
   }
-  //
-  Int_t good_for_track_test[4]={0,0,0,0};
-  Int_t sum_good_track_test=0;
-  for(Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ) {
-    if (fNClust[ip]==1 && inside_bound[ip] && fClustSize[ip][0]<=2) good_for_track_test[ip]=1;
-    //cout << " good for track = " << good_for_track_test[ip] << endl;
-    sum_good_track_test+=good_for_track_test[ip];
-  }	 
-  //
-  Double_t trackeff_scint_ydiff_max= 10. ;
-  Double_t trackeff_scint_xdiff_max= 10. ;
-  Bool_t xdiffTest=kFALSE;
-  Bool_t ydiffTest=kFALSE;
+
   fGoodScinHits = 0;
-  if (fTrackEffTestNScinPlanes == 4) {
-    if (fTrackEffTestNScinPlanes==sum_good_track_test) {
-      xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
-      ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
-      if (xdiffTest && ydiffTest) fGoodScinHits = 1;
-    }
+  // (2+2) 4 good hits 
+  if( good_y_match &&  good_x_match )  {
+    fGoodScinHits = 1;
   }
+  // (2+1) 3 good hits
+  if( at_least_one_good_y_clusters &&  good_x_match )  {
+    fGoodScinHits = 1;
+  }
+  // (1+2) 3 good hits
+  if( at_least_one_good_x_clusters &&  good_y_match )  {
+    fGoodScinHits = 1;
+  }
+
+
+  //for (Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ){
+  //  //std::cout << ip << " " << fPlanes[ip]->GetHits()->GetEntries() << " hits\n" ;
+  //  TClonesArray* hodoHits    = fPlanes[ip]->GetHits();
+  //  Int_t         prev_padnum = -100;
+
+  //  for (Int_t iphit = 0; iphit < fPlanes[ip]->GetNScinHits(); iphit++ ){
+  //    THcHodoHit *hit = (THcHodoHit*)hodoHits->At(iphit);
+  //    Int_t padnum  = hit->GetPaddleNumber();
+  //    if ( hit->GetTwoGoodTimes() ) {
+  //      if ( padnum==prev_padnum+1 ) {
+  //        fClustSize[ip][fNClust[ip]-1]=fClustSize[ip][fNClust[ip]-1]+1;
+  //        fClustPos[ip][fNClust[ip]-1]=fClustPos[ip][fNClust[ip]-1]+fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset();
+  //        //  cout << "Add to cluster  pl = " << ip+1 << " hit = " << iphit << " pad = " << padnum << " clus =  " << fNClust[ip] << " cl size = " << fClustSize[ip][fNClust[ip]-1] << " pos " << fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset() << endl;
+  //      } else {
+  //        if (fNClust[ip]<MaxNClus) fNClust[ip]++;
+  //        fClustSize[ip][fNClust[ip]-1]=1;
+  //        fClustPos[ip][fNClust[ip]-1]=fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset();
+  //        //  cout << " New clus pl = " << ip+1 << " hit = " << iphit << " pad = " << padnum << " clus = " << fNClust[ip] << " cl size = " << fClustSize[ip][fNClust[ip]] << " pos " << fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset() << endl;
+  //      }
+  //      prev_padnum=padnum;
+  //    }
+  //  }
+  //}
   //
-  if (fTrackEffTestNScinPlanes == 3) {
-    if (fTrackEffTestNScinPlanes==sum_good_track_test) {
-      if(good_for_track_test[0]==1&&good_for_track_test[2]==1) {
-	xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
-	ydiffTest=kTRUE;
-      }
-      if (good_for_track_test[1]==1&&good_for_track_test[3]==1) {
-	xdiffTest=kTRUE;
-	ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
-      }
-      if (xdiffTest && ydiffTest) fGoodScinHits = 1;
-    }
-    if (sum_good_track_test==4) {
-      xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
-      ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
-      if (xdiffTest && ydiffTest) fGoodScinHits = 1;
-    }
-  }
+  //Bool_t inside_bound[4]={kFALSE,kFALSE,kFALSE,kFALSE};
+  //for(Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ) {	 
+  //  for(Int_t ic = 0; ic <fNClust[ip] ; ic++ ) {
+  //    fClustPos[ip][ic]=fClustPos[ip][ic]/fClustSize[ip][ic];
+  //    inside_bound[ip] = fClustPos[ip][ic]>=PadPosLo[ip] &&  fClustPos[ip][ic]<=PadPosHi[ip];
+  //    //cout << "plane = " << ip+1 << " Cluster = " << ic+1 << " size = " << fClustSize[ip][ic]<< " pos = " << fClustPos[ip][ic] << " inside = " << inside_bound[ip] << " lo = " << PadPosLo[ip]<< " hi = " << PadPosHi[ip]<< endl;
+  //  }
+  //}
+  //
+  //std::array<int,4> good_for_track_test = {0,0,0,0};
+  //Int_t sum_good_track_test=0;
+  //for(Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ) {
+  //  if (fNClust[ip]==1 && inside_bound[ip] && fClustSize[ip][0]<=2) good_for_track_test[ip]=1;
+  //  //cout << " good for track = " << good_for_track_test[ip] << endl;
+  //  sum_good_track_test+=good_for_track_test[ip];
+  //}	 
+
+  // these should be input parameters
+  //Double_t trackeff_scint_ydiff_max= 10. ;
+  //Double_t trackeff_scint_xdiff_max= 10. ;
+
+  //Bool_t xdiffTest=kFALSE;
+  //Bool_t ydiffTest=kFALSE;
+
+  //fGoodScinHits = 0;
+  //if (fTrackEffTestNScinPlanes == 4) {
+  //  if (fTrackEffTestNScinPlanes==sum_good_track_test) {
+  //    xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
+  //    ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
+  //    if (xdiffTest && ydiffTest) fGoodScinHits = 1;
+  //  }
+  //}
+  ////
+  //if (fTrackEffTestNScinPlanes == 3) {
+  //  if (fTrackEffTestNScinPlanes==sum_good_track_test) {
+  //    if(good_for_track_test[0]==1&&good_for_track_test[2]==1) {
+  //      xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
+  //      ydiffTest=kTRUE;
+  //    }
+  //    if (good_for_track_test[1]==1&&good_for_track_test[3]==1) {
+  //      xdiffTest=kTRUE;
+  //      ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
+  //    }
+  //    if (xdiffTest && ydiffTest) fGoodScinHits = 1;
+  //  }
+  //  if (sum_good_track_test==4) {
+  //    xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
+  //    ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
+  //    if (xdiffTest && ydiffTest) fGoodScinHits = 1;
+  //  }
+  //}
   //       
   //	cout << " good scin = " << fGoodScinHits << " " << sum_good_track_test << " " << xdiffTest  << " " << ydiffTest<< endl;
   //cout << " ************" << endl;

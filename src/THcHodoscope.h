@@ -135,7 +135,15 @@ public:
   friend class THaScCalib;
 
   THcHodoscope();  // for ROOT I/O
+
+  Int_t        fGoodScinHits = 0; // Used to indicate hodoscope had good hits that can be used for defining efficiencies
+
 protected:
+
+
+  // TODO: clean up this class
+  // Way too many data members!!!!!
+  // Get rid of junk!
 
   THcCherenkov* fCherenkov;
 
@@ -223,8 +231,6 @@ protected:
   TClonesArray*  fTrackProj;  // projection of track onto scintillator plane
                               // and estimated match to TOF paddle
 
-  //--------------------------   Ahmed   -----------------------------
-
 
   Int_t        fCheckEvent;
   Int_t        fEventType;
@@ -247,7 +253,6 @@ protected:
   Int_t        fdebugprintscinraw;
   Int_t        fTestSum;
   Int_t        fTrackEffTestNScinPlanes;
-  Int_t        fGoodScinHits;
   Int_t*       fxLoScin;
   Int_t*       fxHiScin;
   Int_t*       fyLoScin;

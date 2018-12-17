@@ -45,7 +45,7 @@ public:
 
   //  Int_t GetNHits() const { return fNhit; }
 
-  //  Int_t GetNTracks() const { return fNDCTracks; }
+  Int_t GetNTracks() const { return fNDCTracks; }
   //  const TClonesArray* GetTrackHits() const { return fTrackProj; }
   void SetFocalPlaneBestTrack(Int_t golden_track_index); // Called in THcHallCSpectrometer:
 
@@ -75,6 +75,8 @@ public:
   Int_t GetVersion() const {return fVersion;}
 
 
+
+
   Double_t GetPlaneTimeZero(Int_t plane) const { return fPlaneTimeZero[plane-1];}
   Double_t GetSigma(Int_t plane) const { return fSigma[plane-1];}
   Int_t GetFixPropagationCorrectionFlag() const {return fFixPropagationCorrection;}
@@ -92,6 +94,7 @@ public:
   //  friend class THaScCalib;
 
   THcDC();  // for ROOT I/O
+
 protected:
   Int_t fdebuglinkstubs;
   Int_t fdebugprintrawdc;
@@ -199,6 +202,15 @@ protected:
   // Intermediate structure for building
   static const UInt_t MAXTRACKS = 10;
 
+public:
+  THcDriftChamberPlane* GetPlane(unsigned int i_plane) {
+    if(i_plane < fNPlanes) {
+      return fPlanes[i_plane];
+    }
+    return nullptr;
+  }
+
+protected:
   std::vector<THcDriftChamberPlane*> fPlanes; // List of plane objects
   std::vector<THcDriftChamber*> fChambers; // List of chamber objects
 
