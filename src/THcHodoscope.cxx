@@ -1451,11 +1451,9 @@ Int_t THcHodoscope::CoarseProcess( TClonesArray& tracks )
   return 0;
 
 }
-//
+
 void THcHodoscope::TrackEffTest(void)
 {
-  //Double_t PadLow[4];
-  //Double_t PadHigh[4];
   // assume X planes are 0,2 and Y planes are 1,3
   std::array<int,4> PadLow = {fxLoScin[0], fyLoScin[0], fxLoScin[1], fyLoScin[1]};
   std::array<int,4> PadHigh = {fxHiScin[0], fyHiScin[0], fxHiScin[1], fyHiScin[1]};
@@ -1474,16 +1472,6 @@ void THcHodoscope::TrackEffTest(void)
       PadPosHi[ip]=lowtemp;
     }
   }  
-  //
-  const Int_t           MaxNClus = 5;
-  std::vector<Int_t>    iw(MaxNClus, 0);
-  std::vector<Double_t> dw(MaxNClus, 0);
-  for(Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ) {
-    fNClust.push_back(0);
-    fClustSize.push_back(iw);
-    fClustPos.push_back(dw);
-  }
-
   //{
   //  std::vector<int>  test_vector = {1,2,5,6,7, 9,10, 20};
   //  auto test_res = hcana::find_discontinuity(test_vector);
@@ -1511,8 +1499,8 @@ void THcHodoscope::TrackEffTest(void)
   //            << "\n";
   //}
 
-  using hit_iter = std::vector<THcHodoHit*>::iterator;
-  using HitRangeVector = typename std::vector<std::pair<hit_iter, hit_iter>>;
+  using HitIterator      = std::vector<THcHodoHit*>::iterator;
+  using HitRangeVector   = typename std::vector<std::pair<HitIterator, HitIterator>>;
   using ClusterPositions = typename std::vector<double>;
   std::vector<std::vector<THcHodoHit*>> hit_vecs;
   std::vector<HitRangeVector>           hit_clusters;
@@ -1627,86 +1615,6 @@ void THcHodoscope::TrackEffTest(void)
     fGoodScinHits = 1;
   }
 
-
-  //for (Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ){
-  //  //std::cout << ip << " " << fPlanes[ip]->GetHits()->GetEntries() << " hits\n" ;
-  //  TClonesArray* hodoHits    = fPlanes[ip]->GetHits();
-  //  Int_t         prev_padnum = -100;
-
-  //  for (Int_t iphit = 0; iphit < fPlanes[ip]->GetNScinHits(); iphit++ ){
-  //    THcHodoHit *hit = (THcHodoHit*)hodoHits->At(iphit);
-  //    Int_t padnum  = hit->GetPaddleNumber();
-  //    if ( hit->GetTwoGoodTimes() ) {
-  //      if ( padnum==prev_padnum+1 ) {
-  //        fClustSize[ip][fNClust[ip]-1]=fClustSize[ip][fNClust[ip]-1]+1;
-  //        fClustPos[ip][fNClust[ip]-1]=fClustPos[ip][fNClust[ip]-1]+fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset();
-  //        //  cout << "Add to cluster  pl = " << ip+1 << " hit = " << iphit << " pad = " << padnum << " clus =  " << fNClust[ip] << " cl size = " << fClustSize[ip][fNClust[ip]-1] << " pos " << fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset() << endl;
-  //      } else {
-  //        if (fNClust[ip]<MaxNClus) fNClust[ip]++;
-  //        fClustSize[ip][fNClust[ip]-1]=1;
-  //        fClustPos[ip][fNClust[ip]-1]=fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset();
-  //        //  cout << " New clus pl = " << ip+1 << " hit = " << iphit << " pad = " << padnum << " clus = " << fNClust[ip] << " cl size = " << fClustSize[ip][fNClust[ip]] << " pos " << fPlanes[ip]->GetPosCenter(padnum-1)+ fPlanes[ip]->GetPosOffset() << endl;
-  //      }
-  //      prev_padnum=padnum;
-  //    }
-  //  }
-  //}
-  //
-  //Bool_t inside_bound[4]={kFALSE,kFALSE,kFALSE,kFALSE};
-  //for(Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ) {	 
-  //  for(Int_t ic = 0; ic <fNClust[ip] ; ic++ ) {
-  //    fClustPos[ip][ic]=fClustPos[ip][ic]/fClustSize[ip][ic];
-  //    inside_bound[ip] = fClustPos[ip][ic]>=PadPosLo[ip] &&  fClustPos[ip][ic]<=PadPosHi[ip];
-  //    //cout << "plane = " << ip+1 << " Cluster = " << ic+1 << " size = " << fClustSize[ip][ic]<< " pos = " << fClustPos[ip][ic] << " inside = " << inside_bound[ip] << " lo = " << PadPosLo[ip]<< " hi = " << PadPosHi[ip]<< endl;
-  //  }
-  //}
-  //
-  //std::array<int,4> good_for_track_test = {0,0,0,0};
-  //Int_t sum_good_track_test=0;
-  //for(Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ) {
-  //  if (fNClust[ip]==1 && inside_bound[ip] && fClustSize[ip][0]<=2) good_for_track_test[ip]=1;
-  //  //cout << " good for track = " << good_for_track_test[ip] << endl;
-  //  sum_good_track_test+=good_for_track_test[ip];
-  //}	 
-
-  // these should be input parameters
-  //Double_t trackeff_scint_ydiff_max= 10. ;
-  //Double_t trackeff_scint_xdiff_max= 10. ;
-
-  //Bool_t xdiffTest=kFALSE;
-  //Bool_t ydiffTest=kFALSE;
-
-  //fGoodScinHits = 0;
-  //if (fTrackEffTestNScinPlanes == 4) {
-  //  if (fTrackEffTestNScinPlanes==sum_good_track_test) {
-  //    xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
-  //    ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
-  //    if (xdiffTest && ydiffTest) fGoodScinHits = 1;
-  //  }
-  //}
-  ////
-  //if (fTrackEffTestNScinPlanes == 3) {
-  //  if (fTrackEffTestNScinPlanes==sum_good_track_test) {
-  //    if(good_for_track_test[0]==1&&good_for_track_test[2]==1) {
-  //      xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
-  //      ydiffTest=kTRUE;
-  //    }
-  //    if (good_for_track_test[1]==1&&good_for_track_test[3]==1) {
-  //      xdiffTest=kTRUE;
-  //      ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
-  //    }
-  //    if (xdiffTest && ydiffTest) fGoodScinHits = 1;
-  //  }
-  //  if (sum_good_track_test==4) {
-  //    xdiffTest= TMath::Abs(fClustPos[0][0]-fClustPos[2][0])<trackeff_scint_xdiff_max;
-  //    ydiffTest= TMath::Abs(fClustPos[1][0]-fClustPos[3][0])<trackeff_scint_ydiff_max;
-  //    if (xdiffTest && ydiffTest) fGoodScinHits = 1;
-  //  }
-  //}
-  //       
-  //	cout << " good scin = " << fGoodScinHits << " " << sum_good_track_test << " " << xdiffTest  << " " << ydiffTest<< endl;
-  //cout << " ************" << endl;
-  //
 }
 //
 //

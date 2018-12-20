@@ -93,6 +93,7 @@ install(TARGETS ${LIBNAME}
 install(FILES ${allheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 #install(DIRECTORY nlohmann DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
+install(DIRECTORY include/hcana  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(DIRECTORY include/spdlog DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hcana)
 
 #----------------------------------------------------------------------------
