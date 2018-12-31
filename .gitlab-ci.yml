@@ -1,0 +1,93 @@
+image: whit/image_recipes/ubuntu_dind:latest
+
+#docker pull eicweb.phy.anl.gov:4567/whit/image_recipes/ubuntu_base:latest 
+
+stages:
+  - build
+  - test
+  - phase2
+  - phase3 
+
+
+singularity:
+  stage: build
+  when: manual
+  script:
+     - /bin/bash .gitlabci/setup.sh
+  artifacts:
+      paths:
+        - build/Singularity.simg
+        - build/Singularity
+        - build/Singularity.broadwell.simg
+        - build/Singularity.broadwell
+
+# Ubuntu docker build
+ubuntu_docker:
+  stage: phase1  
+  #when: manual
+  script:
+     - docker login eicweb.phy.anl.gov:4567 -u whit -p ${eic0_registry_push_token}
+     - cd ubuntu_base && make release
+       # - docker login eicweb.phy.anl.gov:4567 -u whit -p ${eic0_registry_push_token}
+       # - docker tag  whit/image_recipes/ubuntu_base:latest eicweb.phy.anl.gov:4567/whit/image_recipes/ubuntu_base:latest
+       # - docker push eicweb.phy.anl.gov:4567/whit/image_recipes/ubuntu_base:latest
+
+ubuntu_broadwell_docker:
+  stage: phase1  
+  #when: manual
+  script:
+     - docker login eicweb.phy.anl.gov:4567 -u whit -p ${eic0_registry_push_token}
+     - cd ubuntu_base && make release-alt
+
+ubuntu_singular:
+  stage: phase2
+  when: manual
+  script:
+     - /bin/bash .gitlabci/setup.sh
+     - mkdir -p build
+     - cd ubuntu_base && /bin/bash .gitlabci/build.sh Singularity.ubuntu && cp Singularity.ubunbu.simg ../build 
+     - cp  ubuntu_base/Singularity.ubuntu build/.
+  artifacts:
+      paths:
+        - build/Singularity.ubuntu.simg
+        - build/Singularity.ubuntu
+
+# ROOT docker image build
+root_docker:
+  stage: phase2
+  #when: manual
+  dependencies:
+     - ubuntu_docker
+  script:
+    #- /bin/bash .gitlabci/setup.sh
+     - docker login eicweb.phy.anl.gov:4567 -u whit -p ${eic0_registry_push_token}
+     - cd root_base && make release
+       # - docker login eicweb.phy.anl.gov:4567 -u whit -p ${eic0_registry_push_token}
+       # - docker tag  whit/image_recipes/root_base:latest eicweb.phy.anl.gov:4567/whit/image_recipes/root_base:latest
+       # - docker push eicweb.phy.anl.gov:4567/whit/image_recipes/root_base:latest
+    #- /bin/bash .gitlabci/setup.sh
+
+root_broadwell_docker:
+  stage: phase2
+  #when: manual
+  dependencies:
+     - ubuntu_broadwell_docker
+  script:
+     - docker login eicweb.phy.anl.gov:4567 -u whit -p ${eic0_registry_push_token}
+     - cd root_base && make release-alt
+
+root_singular:
+  stage: phase3
+  when: manual
+  script:
+     - /bin/bash .gitlabci/setup.sh
+     - mkdir -p build
+     - cd root_base && /bin/bash .gitlabci/build.sh Singularity.root && cp Singularity.ubunbu.simg ../build 
+     - cp root_base/Singularity.root build/.
+  artifacts:
+      paths:
+        - build/Singularity.root.simg
+        - build/Singularity.root
+
+
+

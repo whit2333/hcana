@@ -1,0 +1,58 @@
+# ROOT base
+#
+# A container for the latest root
+#
+FROM  whit/image_recipes/ubuntu_base:latest
+LABEL maintainer "Whitney Armstrong <warmstrong@anl.gov>"
+#
+
+RUN cd /tmp \
+      && wget http://bitbucket.org/eigen/eigen/get/3.3.4.tar.bz2 \
+      && tar -xvf 3.3.4.tar.bz2 \
+      && cd eigen-* \
+      && mkdir build && cd build \
+      && cmake ../. -DCMAKE_CXX_FLAGS=" -march=haswell -O3 -mfma -malign-data=cacheline -finline-functions " \
+      && make -j10 > /tmp/eigen_build.log && make install
+
+RUN cd /tmp \
+      && git clone --depth=1 https://gitlab.cern.ch/CLHEP/CLHEP.git \
+      && mkdir -p builds/clhep_build \
+      && cd  builds/clhep_build \
+      && cmake /tmp/CLHEP/.  -DCMAKE_CXX_FLAGS=" -march=haswell -O3 -mfma -malign-data=cacheline -finline-functions "\
+      && make -j38 install > /tmp/clhep_build.log \
+      && cd /tmp && rm -rf /tmp/CLHEP && rm -rf /tmp/builds/clhep_build
+
+RUN cd /tmp \
+&& git clone https://github.com/VcDevel/Vc.git \
+&& cd  Vc \
+&& git submodule update --init \
+&& mkdir build && cd build \
+&& cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_TESTING=OFF -DTARGET_ARCHITECTURE=broadwell ../.  \
+&& make -j30 > /tmp/vc_build.log  \
+&& make install
+
+# Build root from the repo master
+RUN cd /tmp \
+      && pwd \
+      && git clone --depth=1 https://github.com/root-project/root.git root_master \
+      && cd /tmp && mkdir -p builds/root_build \
+      && cd builds/root_build \
+      && cmake ../../root_master/. -Droot7:BOOL=ON -Dcxx17:BOOL=ON -Dfortran:BOOL=ON \
+             -Dgdml:BOOL=ON -Dmathmore:BOOL=ON -Dminuit2:BOOL=ON  -Dbuiltin_vdt:BOOL=ON -Dbuiltin_veccore:BOOL=ON \
+             -Dvc:BOOL=ON -Dbuiltin_vecgeom:BOOL=ON  -Dunuran:BOOL=ON  \
+      && cd /tmp/builds/root_build && make -j38 > /tmp/root_build.log && make install \
+      && cd /tmp && rm -rf /tmp/root_master && rm -rf /tmp/builds/root_build 
+             
+#-DCMAKE_CXX_FLAGS=" -march=haswell -O3 -mfma -malign-data=cacheline -finline-functions "
+#&& wget -O- https://root.cern.ch/download/root_v6.14.06.source.tar.gz | tar -zxvf - \
+#&& mv root-6.14.06 root_master \
+#RUN which c++ && ls -lrth /usr/bin/c++ && cd /tmp/builds/root_build && make -j38 VERBOSE=1 && make install \
+#      && cd /tmp && rm -rf /tmp/root_master && rm -rf /tmp/builds/root_build 
+
+#RUN useradd -ms /bin/bash -d /opt/user user
+#USER user
+#WORKDIR /opt/bubble_user
+
+##CMD ["-c" ]
+#ENTRYPOINT ["/bin/bash"]
+
