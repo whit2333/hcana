@@ -1,13 +1,14 @@
-FROM  eicweb.phy.anl.gov:4567/whit/image_recipes/root_base:latest
+FROM  hallac/root_base:latest
 LABEL maintainer "Whitney Armstrong <warmstrong@anl.gov>"
 #
 
 RUN source /usr/local/bin/thisroot.sh \
   && export PYTHONPATH=/usr/local/lib:$PYTHONPATH  \
-  && git clone https://gitlab+deploy-token-1:FaNA-Yg4s7hpjvWPZnq8@eicweb.phy.anl.gov/upsilon/Pcsim.git \
-  && mkdir Pcsim/build && cd Pcsim/build  \
+  && /tmp  \
+  && git clone https://eicweb.phy.anl.gov/jlab/hcana.git \
+  && mkdir hcana/build && cd hcana/build  \
   && cmake ../.  \
-  && make -j20 \
+  && make -j4 \
   && make install
 
 
