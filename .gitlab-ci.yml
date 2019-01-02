@@ -4,7 +4,7 @@ image: whit/image_recipes/ubuntu_dind:latest
 
 stages:
   - build
-    #  - phase2
+  - phase2
 
 
 hcana_docker:
@@ -19,7 +19,7 @@ hcana_docker:
 
 
 hcana_singular:
-  #stage: phase2
+  stage: phase2
   #when: manual
   dependencies:
      - hcana_docker
