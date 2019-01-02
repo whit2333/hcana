@@ -59,6 +59,7 @@ tag-latest: ## Generate container `{version}` tag
 	docker tag $(APP_NAME)   $(REPO)/$(APP_NAME):latest
 	docker tag $(APP_NAME)   $(GL_GROUP)/$(APP_NAME):latest
 	docker tag $(APP_NAME)   $(GL_REG_GROUP)/$(APP_NAME):latest
+	docker tag $(APP_NAME)   $(REG_NAME)/$(GL_GROUP)/$(APP_NAME):latest
 	docker tag $(APP_NAME)   $(REG_NAME)/$(REPO)/$(APP_NAME):latest  
 	#docker tag $(APP_NAME) $(REPO)/$(APP_NAME):$(VERSION)
 	#docker tag $(APP_NAME) $(GL_GROUP)/$(APP_NAME):$(VERSION)
