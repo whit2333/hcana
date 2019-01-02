@@ -25,6 +25,7 @@ help: ## This help.
 .DEFAULT_GOAL := help
 
 # ==========================================================================
+#
 build: ## build the image
 	docker build -t $(APP_NAME) .
 
@@ -34,12 +35,13 @@ build-nc: ## Build the container without caching (from scratch)
 build-alt: ## build the container for various machine architectures (broadwell, haswell, knl)
 	@echo 'building for architecture: $(ALT_NAME)'
 	docker build -t $(APP_NAME)_$(ALT_NAME) -f Dockerfile.$(ALT_NAME) .
-	#docker tag $(APP_NAME)_$(ALT_NAME) $(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION)
 
 build-alt-nc: ## build the container for various machine architectures (broadwell, haswell, knl)
 	@echo 'build-alt-nc: building for architecture: $(ALT_NAME)'
 	docker build --no-cache -t $(APP_NAME)_$(ALT_NAME) -f Dockerfile.$(ALT_NAME) .
 
+# ==========================================================================
+#
 run: ## Run container on port configured in `config.env`
 	docker run -i -t --rm --env-file=./config.env -p=$(PORT):$(PORT) --name="$(APP_NAME)" $(REPO)/$(APP_NAME):$(TAG_VERSION)
 
@@ -49,14 +51,14 @@ stop: ## Stop and remove a running container
 	docker stop $(APP_NAME); docker rm $(APP_NAME)
 
 # ==========================================================================
-#
 # Docker tagging
-tag: tag-latest tag-version ## Generate container tags for the `{version}` ans `latest` tags
+tag: tag-latest #tag-version ## Generate container tags for the `{version}` ans `latest` tags
 
 tag-latest: ## Generate container `{version}` tag
 	@echo 'create tag latest'
 	docker tag $(APP_NAME)   $(REPO)/$(APP_NAME):latest
 	docker tag $(APP_NAME)   $(GL_GROUP)/$(APP_NAME):latest
+	docker tag $(APP_NAME)   $(GL_REG_GROUP)/$(APP_NAME):latest
 	docker tag $(APP_NAME)   $(REG_NAME)/$(REPO)/$(APP_NAME):latest  
 	#docker tag $(APP_NAME) $(REPO)/$(APP_NAME):$(VERSION)
 	#docker tag $(APP_NAME) $(GL_GROUP)/$(APP_NAME):$(VERSION)
@@ -78,9 +80,11 @@ tag-alt-version: ## Generate container `{version}` tag
 
 # ==========================================================================
 #
+login: ## Auto login to AWS-ECR unsing aws-cli
+	docker login eicweb.phy.anl.gov:4567 -u $(REG_USER) -p $(REG_TOKEN)
+
 release: build publish ## Make a release by building and publishing the `{version}` ans `latest` tagged containers to ECR
 
-#####
 publish: login publish-latest #publish-version ## Publish the `{version}` ans `latest` tagged containers to ECR
 
 push: login ## push after login @echo 'push latest to $(REG_NAME)/$(REPO)/$(APP_NAME):latest'
@@ -111,19 +115,22 @@ publish-alt-version: tag-alt-version ## Publish the `latest` taged container to 
 	@echo 'publish latest to $(REPO)'
 	docker push $(REG_NAME)/$(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION)
 
+# ==========================================================================
+#
 
-login: ## Auto login to AWS-ECR unsing aws-cli
-	docker login eicweb.phy.anl.gov:4567 -u $(REG_USER) -p $(REG_TOKEN)
-
-	
-login-dockerhub: ## Auto login to AWS-ECR unsing aws-cli
+login-dockerhub: ## login to hub.docker.com
 	@echo 'docker hub login :'
 	docker login 
 
-publish-dockerhub: build #publish-version ## Publish the `{version}` ans `latest` tagged containers to ECR
-	@echo '$(REPO_NAME)/$(APP_NAME):$(TAG_VERSION)'
-	docker push $(REPO_NAME)/$(APP_NAME):$(TAG_VERSION)
-	docker push $(REPO_NAME)/$(APP_NAME):$(VERSION)
+push-dockerhub: build #publish-version ## Publish the `{version}` ans `latest` tagged containers to ECR
+	@echo '$(DH_ORG)/$(APP_NAME):$(TAG_VERSION)'
+	docker push $(DH_ORG)/$(APP_NAME):latest
+	#docker push $(DH_ORG)/$(APP_NAME):$(VERSION)
+
+publish-dockerhub: build tag #publish-version ## Publish the `{version}` ans `latest` tagged containers to ECR
+	@echo '$(DH_ORG)/$(APP_NAME):$(TAG_VERSION)'
+	docker push $(DH_ORG)/$(APP_NAME):latest
+	#docker push $(DH_ORG)/$(APP_NAME):$(VERSION)
 
 # ==========================================================================
 #
