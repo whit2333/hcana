@@ -5,9 +5,6 @@ include $(cnf)
 # exports variables in config.env as environment variables
 export $(shell sed 's/=.*//' $(cnf))
 
-APP_NAME    = hcana
-REPO        = $(REG_USER)
-TAG_VERSION = latest
 
 # import deploy config
 # You can change the default deploy config with `make cnf="deploy_special.env" release`
@@ -27,28 +24,21 @@ help: ## This help.
 
 .DEFAULT_GOAL := help
 
+# ==========================================================================
 build: ## build the image
 	docker build -t $(APP_NAME) .
-	docker tag $(APP_NAME) $(REPO)/$(APP_NAME):$(TAG_VERSION)
-	docker tag $(APP_NAME) $(REPO)/$(APP_NAME):$(VERSION)
 
 build-nc: ## Build the container without caching (from scratch)
-	docker build --no-cache -t $(APP_NAME):$(TAG_VERSION) .
-	docker tag $(APP_NAME) $(REPO)/$(APP_NAME):$(TAG_VERSION)
-	docker tag $(APP_NAME) $(REPO)/$(APP_NAME):$(VERSION)
+	docker build --no-cache -t $(APP_NAME) .
 
 build-alt: ## build the container for various machine architectures (broadwell, haswell, knl)
 	@echo 'building for architecture: $(ALT_NAME)'
 	docker build -t $(APP_NAME)_$(ALT_NAME) -f Dockerfile.$(ALT_NAME) .
-	docker tag $(APP_NAME)_$(ALT_NAME) $(REPO)/$(APP_NAME)_$(ALT_NAME):$(TAG_VERSION)
-	docker tag $(APP_NAME)_$(ALT_NAME) $(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION)
+	#docker tag $(APP_NAME)_$(ALT_NAME) $(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION)
 
 build-alt-nc: ## build the container for various machine architectures (broadwell, haswell, knl)
 	@echo 'build-alt-nc: building for architecture: $(ALT_NAME)'
-	docker build -t $(APP_NAME)_$(ALT_NAME) -f Dockerfile.$(ALT_NAME) .
-	@echo 'tagging result $(REPO)/$(APP_NAME)_$(ALT_NAME):$(TAG_VERSION)'
-	docker tag $(APP_NAME)_$(ALT_NAME) $(REPO)/$(APP_NAME)_$(ALT_NAME):$(TAG_VERSION)
-	docker tag $(APP_NAME)_$(ALT_NAME) $(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION)
+	docker build --no-cache -t $(APP_NAME)_$(ALT_NAME) -f Dockerfile.$(ALT_NAME) .
 
 run: ## Run container on port configured in `config.env`
 	docker run -i -t --rm --env-file=./config.env -p=$(PORT):$(PORT) --name="$(APP_NAME)" $(REPO)/$(APP_NAME):$(TAG_VERSION)
@@ -58,12 +48,18 @@ up: build run ## Run container on port configured in `config.env` (Alias to run)
 stop: ## Stop and remove a running container
 	docker stop $(APP_NAME); docker rm $(APP_NAME)
 
+# ==========================================================================
+#
 # Docker tagging
 tag: tag-latest tag-version ## Generate container tags for the `{version}` ans `latest` tags
 
 tag-latest: ## Generate container `{version}` tag
 	@echo 'create tag latest'
-	docker tag $(REPO)/$(APP_NAME):latest $(REG_NAME)/$(REPO)/$(APP_NAME):latest  
+	docker tag $(APP_NAME)   $(REPO)/$(APP_NAME):latest
+	docker tag $(APP_NAME)   $(GL_GROUP)/$(APP_NAME):latest
+	docker tag $(APP_NAME)   $(REG_NAME)/$(REPO)/$(APP_NAME):latest  
+	#docker tag $(APP_NAME) $(REPO)/$(APP_NAME):$(VERSION)
+	#docker tag $(APP_NAME) $(GL_GROUP)/$(APP_NAME):$(VERSION)
 
 tag-version: ## Generate container `latest` tag
 	@echo 'create tag $(VERSION)'
@@ -73,13 +69,15 @@ tag-alt: tag-alt-latest # tag-alt-version ## Generate container tags for the `{v
 
 tag-alt-latest: ## Generate container `{version}` tag
 	@echo 'create tag latest'
-	docker tag $(REPO)/$(APP_NAME)_$(ALT_NAME):latest $(REG_NAME)/$(REPO)/$(APP_NAME)_$(ALT_NAME):$(TAG_VERSION)
+	docker tag $(APP_NAME)_$(ALT_NAME) $(REPO)/$(APP_NAME)_$(ALT_NAME):latest
+	docker tag $(APP_NAME)_$(ALT_NAME) $(REG_NAME)/$(REPO)/$(APP_NAME)_$(ALT_NAME):latest
 
 tag-alt-version: ## Generate container `{version}` tag
 	@echo 'create tag latest'
-	docker tag $(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION) $(REG_NAME)/$(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION)
+	docker tag $(APP_NAME)_$(ALT_NAME) $(REG_NAME)/$(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION)
 
-#####
+# ==========================================================================
+#
 release: build publish ## Make a release by building and publishing the `{version}` ans `latest` tagged containers to ECR
 
 #####
@@ -96,10 +94,10 @@ publish-version: tag-version ## Publish the `{version}` taged container to ECR
 	@echo 'publish $(VERSION) to $(REPO)'
 	docker push $(REG_NAME)/$(REPO)/$(APP_NAME):$(VERSION)
 
-#####
+# ==========================================================================
+#
 release-alt: build-alt publish-alt ## Make a release by building and publishing the `{version}` ans `latest` tagged containers to ECR
 
-#####
 publish-alt: login publish-alt-latest #publish-alt-version ## Publish the `{version}` ans `latest` tagged containers to ECR
 
 push-alt: login tag-alt-latest ## push after login 
@@ -113,11 +111,67 @@ publish-alt-version: tag-alt-version ## Publish the `latest` taged container to 
 	@echo 'publish latest to $(REPO)'
 	docker push $(REG_NAME)/$(REPO)/$(APP_NAME)_$(ALT_NAME):$(VERSION)
 
-# HELPERS
 
 login: ## Auto login to AWS-ECR unsing aws-cli
 	docker login eicweb.phy.anl.gov:4567 -u $(REG_USER) -p $(REG_TOKEN)
 
+	
+login-dockerhub: ## Auto login to AWS-ECR unsing aws-cli
+	@echo 'docker hub login :'
+	docker login 
+
+publish-dockerhub: build #publish-version ## Publish the `{version}` ans `latest` tagged containers to ECR
+	@echo '$(REPO_NAME)/$(APP_NAME):$(TAG_VERSION)'
+	docker push $(REPO_NAME)/$(APP_NAME):$(TAG_VERSION)
+	docker push $(REPO_NAME)/$(APP_NAME):$(VERSION)
+
+# ==========================================================================
+#
+clean:
+	docker rmi $(REPO_NAME)/$(APP_NAME) || true
+	docker rmi $(REPO_NAME)/$(APP_NAME):$(TAG_VERSION) || true
+	docker rmi $(REPO_NAME)/$(APP_NAME):$(VERSION) || true
+	docker rmi $(REPO)/$(APP_NAME) || true
+	docker rmi $(REPO)/$(APP_NAME):$(TAG_VERSION) || true
+	docker rmi $(REPO)/$(APP_NAME):$(VERSION) || true
+	docker rmi $(REG_NAME)/$(REPO)/$(APP_NAME):latest || true  
+	docker rmi $(REG_NAME)/$(REPO)/$(APP_NAME):$(TAG_VERSION) || true  
+	docker rmi $(REG_NAME)/$(REPO)/$(APP_NAME) || true  
+	docker rmi $(DH_ORG)/$(APP_NAME) || true
+	docker rmi $(DH_ORG)/$(APP_NAME):$(TAG_VERSION) || true
+	docker rmi $(DH_ORG)/$(APP_NAME):$(VERSION) || true
+	docker rmi $(GL_REG_NAME)/$(GL_REG_GROUP)/$(APP_NAME):latest || true  
+	docker rmi $(GL_REG_NAME)/$(GL_REG_GROUP)/$(APP_NAME):$(VERSION) || true  
+	docker rmi $(GL_REG_NAME)/$(GL_REG_GROUP)/$(APP_NAME) || true  
+	docker rmi $(GL_REG_NAME)/$(GL_REG_GROUP)/$(APP_NAME)_$(ALT_NAME):latest || true  
+	docker rmi $(GL_REG_NAME)/$(GL_REG_GROUP)/$(APP_NAME)_$(ALT_NAME):$(VERSION) || true  
+	docker rmi $(GL_REG_NAME)/$(GL_REG_GROUP)/$(APP_NAME)_$(ALT_NAME) || true  
+	docker rmi $(GL_REG_GROUP)/$(APP_NAME) || true  
+	docker rmi $(GL_REG_GROUP)/$(APP_NAME):$(VERSION) || true  
+	docker rmi $(GL_REG_GROUP)/$(APP_NAME)_$(ALT_NAME) || true  
+	docker rmi $(GL_REG_GROUP)/$(APP_NAME)_$(ALT_NAME):$(VERSION) || true  
+	docker rmi $(GL_REG_NAME)/$(REG_USER)/$(APP_NAME) || true  
+	docker rmi $(GL_REG_NAME)/$(REG_USER)/$(APP_NAME):$(VERSION) || true  
+	#docker rmi $(APP_NAME) || true
+
 version: ## Output the current version
 	@echo $(VERSION)
-	
+
+# ==========================================================================
+#
+info: ## Output the current version
+	@echo 'VERSION      = $(VERSION)     '
+	@echo 'REG_USER     = $(REG_USER)    '
+	@echo 'REG_NAME     = $(REG_NAME)    '
+	@echo 'ALT_NAME     = $(ALT_NAME)    '
+	@echo 'APP_NAME     = $(APP_NAME)    '
+	@echo 'REPO_NAME    = $(REPO_NAME)   '
+	@echo 'DH_ORG       = $(DH_ORG)      '
+	@echo 'GL_GROUP     = $(GL_GROUP)    '
+	@echo 'GL_REG_GROUP = $(GL_REG_GROUP)'
+	@echo 'GL_REG_NAME  = $(GL_REG_NAME) '
+	@echo 'REPO         = $(REPO)        '
+	@echo 'TAG_VERSION  = $(TAG_VERSION) '
+                 
+                 
+                 

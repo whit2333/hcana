@@ -2,14 +2,27 @@ FROM  hallac/root_base:latest
 LABEL maintainer "Whitney Armstrong <warmstrong@anl.gov>"
 #
 
-RUN source /usr/local/bin/thisroot.sh \
+RUN   ls -lrth /usr/local/lib/lib*.so \
   && export PYTHONPATH=/usr/local/lib:$PYTHONPATH  \
-  && /tmp  \
+  && export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH  \
+  && export PATH=/usr/local/bin:$PATH  \
+  && source /usr/local/bin/thisroot.sh \
+  && cd /tmp  \
+  && git clone https://eicweb.phy.anl.gov/jlab/hallac_evio.git \
+  && mkdir hallac_evio/build && cd hallac_evio/build  \
+  && cmake ../.  && make -j20 && make install \
+  && cd /tmp && rm -rf hallac_evio \
+  && cd /tmp  \
+  && export PYTHONPATH=/usr/local/lib:$PYTHONPATH  \
+  && export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH  \
+  && export PATH=/usr/local/bin:$PATH  \
+  && git clone https://eicweb.phy.anl.gov/jlab/analyzer.git \
+  && mkdir analyzer/build && cd analyzer/build  && git checkout scandalizer && git pull \
+  && cmake ../.  && make -j20 && make install && cd /tmp  \
   && git clone https://eicweb.phy.anl.gov/jlab/hcana.git \
   && mkdir hcana/build && cd hcana/build  \
-  && cmake ../.  \
-  && make -j4 \
-  && make install
+  && cmake ../.  && make -j20 && make install \ 
+  && cd /tmp && rm -rf analyzer && rm -rf hcana 
 
 
 #-DCMAKE_CXX_FLAGS=" -march=haswell -O3 -mfma -malign-data=cacheline -finline-functions "
