@@ -31,8 +31,9 @@ hcana_singular:
      - mkdir -p build
      - pwd
      - cp containers/singularity/Singularity Singularity.hcana
-     - /bin/bash .gitlabci/build.sh Singularity.hcana && cp singularity.hcana.simg ../build 
-     - cp  Singularity.hcana build/.
+     - /bin/bash .gitlabci/build.sh Singularity.hcana
+     - cp Singularity.hcana.simg build/.
+     - cp Singularity.hcana build/.
   artifacts:
       paths:
         - build/Singularity.hcana.simg
