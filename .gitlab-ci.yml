@@ -1,4 +1,4 @@
-image: whit/image_recipes/ubuntu_dind:latest
+image: eicweb.phy.anl.gov:4567/whit/image_recipes/root_base:latest
 
 #docker pull eicweb.phy.anl.gov:4567/whit/image_recipes/ubuntu_base:latest 
 
