@@ -34,7 +34,7 @@ hcana_singular:
      - cp  Singularity.hcana build/.
   artifacts:
       paths:
-        - build/Singularity.ubuntu.simg
-        - build/Singularity.ubuntu
+        - build/Singularity.hcana.simg
+        - build/Singularity.hcana
 
 
