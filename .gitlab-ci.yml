@@ -19,6 +19,7 @@ hcana_docker:
 
 
 hcana_singular:
+  tags: singularity
   stage: phase2
   #when: manual
   dependencies:
