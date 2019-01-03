@@ -9,7 +9,8 @@ stages:
 
 hcana_docker:
   stage: build  
-  #when: manual
+  tags: 
+     - eic0 docker
   script:
      - docker login eicweb.phy.anl.gov:4567 -u whit -p ${CI_IMAGE_BUILD_PAT}
      - cd containers/docker && make build && make publish
@@ -22,7 +23,6 @@ hcana_singular:
   tags: 
      - singularity
   stage: phase2
-  #when: manual
   dependencies:
      - hcana_docker
   script:
