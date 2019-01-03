@@ -28,7 +28,8 @@ hcana_singular:
   script:
      - /bin/bash .gitlabci/setup.sh
      - mkdir -p build
-     - cp containers/singularity/Singuilarity Singularity.hcana
+     - pwd
+     - cp containers/singularity/Singularity Singularity.hcana
      - /bin/bash .gitlabci/build.sh Singularity.hcana && cp singularity.hcana.simg ../build 
      - cp  Singularity.hcana build/.
   artifacts:
