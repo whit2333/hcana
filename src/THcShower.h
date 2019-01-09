@@ -270,8 +270,6 @@ protected:
   THcShowerPlane** fPlanes;     // [fNLayers] Shower Plane objects
   THcShowerArray* fArray;
 
-  TClonesArray*  fTrackProj;    // projection of track onto plane
-
   void           ClearEvent();
   void           DeleteArrays();
   virtual Int_t  ReadDatabase( const TDatime& date );

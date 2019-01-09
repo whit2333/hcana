@@ -17,15 +17,13 @@ int main(int argc, char **argv)
   // Create a ROOT-style interactive interface
   //
 
-  if (const char* env_p = std::getenv("DB_DIR")) {
-    std::cout << "Your DB_DIR is: " << env_p << '\n';
-  } else {
+  if (!std::getenv("DB_DIR")) {
     std::string db_dir_env = "DBASE";
     if (setenv("DB_DIR", db_dir_env.c_str(), 1)) {
       std::cout << "Failed to set env var DB_DIR\n";
-      std::exit(EXIT_FAILURE);
+    } else {
+      std::cout << "DB_DIR set to DBASE\n";
     }
-    std::cout << "DB_DIR set to DBASE\n";
   }
 
   // Handle convenience command line options

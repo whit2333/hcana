@@ -74,6 +74,8 @@ private:
 
   std::map<Int_t, CrateInfo_t *> CrateInfoMap;
 
+  void DeleteCrateInfoMap();
+
   THcConfigEvtHandler(const THcConfigEvtHandler& fh);
   THcConfigEvtHandler& operator=(const THcConfigEvtHandler& fh);
 

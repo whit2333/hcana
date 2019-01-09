@@ -50,6 +50,7 @@ To enable debugging you may try this in the setup script
 #include "TNamed.h"
 #include "TMath.h"
 #include "TString.h"
+#include "TROOT.h"
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
@@ -59,6 +60,7 @@ To enable debugging you may try this in the setup script
 #include <iterator>
 #include "THaVarList.h"
 #include "VarDef.h"
+#include "Helper.h"
 
 using namespace std;
 using namespace Decoder;
@@ -88,9 +90,24 @@ THcScalerEvtHandler::THcScalerEvtHandler(const char *name, const char* descripti
 
 THcScalerEvtHandler::~THcScalerEvtHandler()
 {
-  if (fScalerTree) {
+  // The tree object is owned by ROOT since it gets associated wth the output
+  // file, so DO NOT delete it here. 
+  if (!TROOT::Initialized()) {
     delete fScalerTree;
   }
+  Podd::DeleteContainer(scalers);
+  Podd::DeleteContainer(scalerloc);
+  delete [] dvars_prev_read;
+  delete [] dvars;
+  delete [] dvarsFirst;
+  delete [] fBCM_Gain;
+  delete [] fBCM_Offset;
+  delete [] fBCM_delta_charge;
+
+  for( vector<UInt_t*>::iterator it = fDelayedEvents.begin();
+       it != fDelayedEvents.end(); ++it )
+    delete [] *it;
+  fDelayedEvents.clear();
 }
 
 Int_t THcScalerEvtHandler::End( THaRunBase* )
@@ -107,7 +124,10 @@ Int_t THcScalerEvtHandler::End( THaRunBase* )
     evNumberR = -1;
   if (fScalerTree) fScalerTree->Fill();
 
-  fDelayedEvents.clear();	// Does this free the arrays?
+  for( vector<UInt_t*>::iterator it = fDelayedEvents.begin();
+       it != fDelayedEvents.end(); ++it )
+    delete [] *it;
+  fDelayedEvents.clear();
 
   if (fScalerTree) fScalerTree->Write();
   return 0;
@@ -222,9 +242,7 @@ Int_t THcScalerEvtHandler::Analyze(THaEvData *evdata)
     
     UInt_t *datacopy = new UInt_t[evlen];
     fDelayedEvents.push_back(datacopy);
-    for(Int_t i=0;i<evlen;i++) {
-      datacopy[i] = rdata[i];
-    }
+    memcpy(datacopy,rdata,evlen*sizeof(UInt_t));
     return 1;
   } else { 			// A normal event
     if (fDebugFile) *fDebugFile<<"\n\nTHcScalerEvtHandler :: Debugging event type "<<dec<<evdata->GetEvType()<< " event num = " << evdata->GetEvNum() << endl<<endl;
@@ -536,7 +554,7 @@ Int_t THcScalerEvtHandler::AnalyzeBuffer(UInt_t* rdata, Bool_t onlysync)
       UInt_t scaldata = scalers[idx]->GetData(ichan);
       if ( scal_current > fbcm_Current_Threshold) {
 	UInt_t diff;
-	if(scaldata < scal_prev_read[nscal-1]) {
+	if(scaldata < dvars_prev_read[ivar]) {
 	  diff = (kMaxUInt-(dvars_prev_read[ivar] - 1)) + scaldata;
 	} else {
 	  diff = scaldata - dvars_prev_read[ivar];
@@ -587,6 +605,9 @@ THaAnalysisObject::EStatus THcScalerEvtHandler::Init(const TDatime& date)
   fStatus = kOK;
   fNormIdx = -1;
 
+  for( vector<UInt_t*>::iterator it = fDelayedEvents.begin();
+       it != fDelayedEvents.end(); ++it )
+    delete [] *it;
   fDelayedEvents.clear();
 
   //cout << "Howdy !  We are initializing THcScalerEvtHandler !!   name =   "
