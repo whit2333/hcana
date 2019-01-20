@@ -114,7 +114,8 @@ Int_t THcScalerEvtHandler::End( THaRunBase* )
 {
   // Process any delayed events in order received
 
-  cout << "THcScalerEvtHandler::End Analyzing " << fDelayedEvents.size() << " delayed scaler events" << endl;
+  _param_logger->info("THcScalerEvtHandler::End Analyzing {} delayed scaler events", fDelayedEvents.size());
+
   for(std::vector<UInt_t*>::iterator it = fDelayedEvents.begin();
       it != fDelayedEvents.end(); ++it) {
     UInt_t* rdata = *it;
@@ -728,8 +729,9 @@ THaAnalysisObject::EStatus THcScalerEvtHandler::Init(const TDatime& date)
 // fNormSlot is the slot#, checked for consistency
 	  if (clkchan >= 0) {
 		  scalers[idx]->SetClock(defaultDT, clkchan, clkfreq);
-		  cout << "Setting scaler clock ... channel = "<<clkchan<<" ... freq = "<<clkfreq<<endl;
-		  if (fDebugFile) *fDebugFile <<"Setting scaler clock ... channel = "<<clkchan<<" ... freq = "<<clkfreq<<endl;
+                  _param_logger->info("Setting scaler clock ... channel = {} ... freq = {} ",
+                                      clkchan, clkfreq);
+                  if (fDebugFile) *fDebugFile <<"Setting scaler clock ... channel = "<<clkchan<<" ... freq = "<<clkfreq<<endl;
 		  fNormIdx = idx;
 		  if (islot != fNormSlot) cout << "THcScalerEvtHandler:: WARN: contradictory norm slot ! "<<islot<<endl;  
 		  

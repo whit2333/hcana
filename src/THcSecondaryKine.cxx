@@ -293,6 +293,7 @@ Int_t THcSecondaryKine::ReadDatabase( const TDatime& date )
   prefix[0] = tolower(GetName()[0]);
   prefix[1] = '\0';
 
+  _param_logger->info("THcSecondaryKine  prefix = {}", prefix );
   fOopCentralOffset = 0.0;
   DBRequest list[]={
     {"_oopcentral_offset",&fOopCentralOffset,kDouble, 0, 1},
@@ -300,18 +301,19 @@ Int_t THcSecondaryKine::ReadDatabase( const TDatime& date )
     {0}
   };
   gHcParms->LoadParmValues((DBRequest*)&list,prefix);
-  cout << "THcSecondaryKine particleMASS: " << fMX << endl; 
-  
+  //cout << "THcSecondaryKine particleMASS: " << fMX << endl; 
+  _param_logger->info("THcSecondaryKine particleMASS: {}", fMX );
   return kOK;
 }
   
 //_____________________________________________________________________________
 void THcSecondaryKine::SetMX( Double_t m ) 
 {
-  if( !IsInit())
-    fMX = m; 
-  else
+  if (!IsInit()) {
+    fMX = m;
+  } else {
     PrintInitError("SetMX()");
+  }
 }
 
 //_____________________________________________________________________________

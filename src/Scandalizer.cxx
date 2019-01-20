@@ -22,14 +22,14 @@ Int_t Scandalizer::ReadOneEvent()
   Int_t status = THaRunBase::READ_OK;
 
   while(_skip_events > 0  ) {
-    std::cout << _skip_events << " skipping\n";
+    _logger->debug("non-zero skip_events: {}", _skip_events);
     int skipped = 0;
     auto run =  dynamic_cast<THaRun*>(fRun);
     if( run ) {
       skipped = run->SkipToEndOfFile(_skip_events);
     }
     _skip_events = 0;
-    std::cout << skipped << " skipped\n";
+    _logger->debug("skipped {} events", skipped);
     continue;
   }
   if (to_read_file){
@@ -275,15 +275,16 @@ Int_t Scandalizer::Process( THaRunBase* run )
   //--- Report statistics
   if( fVerbose>0 ) {
     cout << dec;
-    if( status == THaRunBase::READ_EOF )
-      cout << "End of file";
-    else if ( fNev == nlast )
-      cout << "Event limit reached.";
-    else if ( fatal )
-      cout << "Fatal processing error.";
-    else if ( terminate )
-      cout << "Terminated during processing.";
-    cout << endl;
+    if( status == THaRunBase::READ_EOF ){
+      _logger->info("End of file status, THaRunBase::READ_EOF");
+    }
+    else if ( fNev == nlast ) {
+      _logger->info("Event limit reached.");
+    } else if ( fatal ) {
+      _logger->error("Fatal processing error.");
+    } else if ( terminate ) {
+      _logger->warn("Terminated during processing.");
+    }
 
     if( !fatal ) {
       PrintCounters();
@@ -294,9 +295,9 @@ Int_t Scandalizer::Process( THaRunBase* run )
   }
 
   // Print cut summary (also to file if one given)
-  if( !fatal ) {
-    PrintCutSummary();
-  }
+  //if( !fatal ) {
+  //  PrintCutSummary();
+  //}
 
   // Print timing statistics, if benchmarking enabled
   if( fDoBench && !fatal ) {

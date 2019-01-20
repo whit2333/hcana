@@ -209,7 +209,9 @@ Int_t THcTimeSyncEvtHandler::Analyze(THaEvData *evdata)
     fFirstTime = kFALSE;
     fDumpNew=2;
   }
-  if(issyncevent) cout << "SYNC event" << endl;
+  if(issyncevent){
+    _param_logger->info("SYNC event");
+  }
   AccumulateStats(fLastEventWasSync);
   fLastEventWasSync = issyncevent;
 
@@ -220,7 +222,7 @@ Int_t THcTimeSyncEvtHandler::Analyze(THaEvData *evdata)
       fWriteDelayed=kTRUE;
       //      cout << "Will write corrected event" << endl;
     } else {
-      cout << "Skipping event " << evdata->GetEvNum() << endl;
+      _param_logger->info( "Skipping event {}", evdata->GetEvNum() );
     }
   } else {			// Not slipping yet, just copy event
     if(fCodaOut) {
