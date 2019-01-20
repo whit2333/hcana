@@ -7,6 +7,20 @@ option(HCANA_BUILTIN_PODD "Use built-in Podd submodule (default: YES)" OFF)
 find_package(ROOT 6.0 REQUIRED CONFIG)
 include(${ROOT_USE_FILE})
 
+#https://github.com/fmtlib/fmt.git
+find_package(fmt REQUIRED)
+get_target_property(FMT_INCLUDE_DIR fmt::fmt INTERFACE_INCLUDE_DIRECTORIES)
+set(SPDLOG_FMT_EXTERNAL TRUE)
+#add_definitions(-DSPDLOG_FMT_EXTERNAL )
+find_package(spdlog REQUIRED)
+if(NOT spdlog_FOUND) 
+  message("spdlog not found.")
+  message(FATAL_ERROR "spdlog should be installed with analyzer if it is not available on the system.")
+  #set(SPDLOG_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/3rd_party/spdlog/include)
+else()
+  get_target_property(SPDLOG_INCLUDE_DIR spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
+endif()
+
 #----------------------------------------------------------------------------
 # Set up Podd and ROOT dependencies
 if(HCANA_BUILTIN_PODD)
@@ -32,19 +46,6 @@ endif()
 #set_diagnostic_flags(WALL WEXTRA)
 #report_build_info()
 
-#https://github.com/fmtlib/fmt.git
-find_package(fmt REQUIRED)
-get_target_property(FMT_INCLUDE_DIR fmt::fmt INTERFACE_INCLUDE_DIRECTORIES)
-
-add_definitions(-DSPDLOG_FMT_EXTERNAL )
-find_package(spdlog REQUIRED)
-if(NOT spdlog_FOUND) 
-  message("spdlog not found.")
-  message(FATAL_ERROR "spdlog should be installed with analyzer if it is not available on the system.")
-  #set(SPDLOG_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/3rd_party/spdlog/include)
-else()
-  get_target_property(SPDLOG_INCLUDE_DIR spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
-endif()
 
 
 #----------------------------------------------------------------------------
