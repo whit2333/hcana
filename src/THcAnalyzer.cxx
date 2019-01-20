@@ -174,7 +174,4 @@ void THcAnalyzer::LoadInfo()
   *lastevent = fRun->GetFirstEvent()+fRun->GetNumAnalyzed();
 }
 
-//_____________________________________________________________________________
-
-ClassImp(THcAnalyzer)
 

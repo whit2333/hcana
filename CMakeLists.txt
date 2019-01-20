@@ -41,6 +41,8 @@ else()
   get_target_property(SPDLOG_INCLUDE_DIR spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
 endif()
 
+#https://github.com/fmtlib/fmt.git
+find_package(fmt REQUIRED)
 
 #----------------------------------------------------------------------------
 # Install in GNU-style directory layout

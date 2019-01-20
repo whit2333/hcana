@@ -10,12 +10,13 @@ Int_t Scandalizer::ReadOneEvent()
   // Read one event from current run (fRun) and raw-decode it using the
   // current decoder (fEvData)
 
-  if( fDoBench ) fBench->Begin("RawDecode");
+  if( fDoBench ) {fBench->Begin("RawDecode");}
 
   bool to_read_file = false;
   if( !fEvData->IsMultiBlockMode() ||
-      (fEvData->IsMultiBlockMode() && fEvData->BlockIsDone()) )
+      (fEvData->IsMultiBlockMode() && fEvData->BlockIsDone()) ){
     to_read_file = true;
+  }
 
   // Find next event buffer in CODA file. Quit if error.
   Int_t status = THaRunBase::READ_OK;
@@ -31,8 +32,9 @@ Int_t Scandalizer::ReadOneEvent()
     std::cout << skipped << " skipped\n";
     continue;
   }
-  if (to_read_file)
+  if (to_read_file){
     status = fRun->ReadEvent();
+  }
 
   // there may be a better place to do this, but this works
   if (fWantCodaVers > 0) {
@@ -77,7 +79,7 @@ Int_t Scandalizer::ReadOneEvent()
       break;
   }
 
-  if( fDoBench ) fBench->Stop("RawDecode");
+  if( fDoBench ) {fBench->Stop("RawDecode");}
   return status;
 }
 
@@ -89,13 +91,14 @@ Int_t Scandalizer::Process( THaRunBase* run )
   // If Event and Filename are defined, then fill the output tree with Event
   // and write the file.
 
-  static const char* const here = "Process";
+  static const char* const here = "Scandalizer::Process";
 
   if( !run ) {
-    if( fRun )
+    if( fRun ){
       run = fRun;
-    else
+    } else {
       return -1;
+    }
   }
 
   //--- Initialization. Creates fFile, fOutput, and fEvent if necessary.
@@ -128,13 +131,11 @@ Int_t Scandalizer::Process( THaRunBase* run )
 
   // Informational messages
   if( fVerbose>1 ) {
-    cout << "Decoder: helicity "
-	 << (fEvData->HelicityEnabled() ? "enabled" : "disabled")
-	 << endl;
-    cout << endl << "Starting analysis" << endl;
+    _logger->info("Decoder: helicity {}", (fEvData->HelicityEnabled() ? "enabled" : "disabled"));
+    _logger->trace("Starting analysis in {}",here);
   }
-  if( fVerbose>2 && fRun->GetFirstEvent()>1 ) {
-    _logger->info("Skipping {} events", fRun->GetFirstEvent());
+  if( fVerbose>1 && fRun->GetFirstEvent()>1 ) {
+    _logger->debug("Skipping {} events", fRun->GetFirstEvent());
   }
 
   //--- The main event loop.
@@ -212,9 +213,9 @@ Int_t Scandalizer::Process( THaRunBase* run )
     }
 
     //--- Clear all tests/cuts
-    if( fDoBench ) fBench->Begin("Cuts");
+    if( fDoBench ) {fBench->Begin("Cuts");}
     gHaCuts->ClearAll();
-    if( fDoBench ) fBench->Stop("Cuts");
+    if( fDoBench ) {fBench->Stop("Cuts");}
 
     //--- Perform the analysis
     Int_t err = MainAnalysis();
@@ -230,7 +231,7 @@ Int_t Scandalizer::Process( THaRunBase* run )
       terminate = true;
       break;
     default:
-      Error( here, "Unknown return code from MainAnalysis(): %d", err );
+      _logger->error( "{} : Unknown return code from MainAnalysis(): {}",here, err );
       terminate = fatal = true;
       continue;
     }
@@ -239,6 +240,7 @@ Int_t Scandalizer::Process( THaRunBase* run )
 
   }  // End of event loop
 
+  // restore the previous signal handler
   signal (SIGINT, prev_handler);
   EndAnalysis();
 
@@ -285,32 +287,34 @@ Int_t Scandalizer::Process( THaRunBase* run )
 
     if( !fatal ) {
       PrintCounters();
-
-      if( fVerbose>1 )
-	PrintScalers();
+      //if (fVerbose > 1) {
+      //  PrintScalers();
+      //}
     }
   }
 
   // Print cut summary (also to file if one given)
-  //if( !fatal )
-  //  PrintCutSummary();
+  if( !fatal ) {
+    PrintCutSummary();
+  }
 
   // Print timing statistics, if benchmarking enabled
-  //if( fDoBench && !fatal ) {
-  //  cout << "Timing summary:" << endl;
-  //  fBench->Print("Init");
-  //  fBench->Print("RawDecode");
-  //  fBench->Print("Decode");
-  //  fBench->Print("CoarseTracking");
-  //  fBench->Print("CoarseReconstruct");
-  //  fBench->Print("Tracking");
-  //  fBench->Print("Reconstruct");
-  //  fBench->Print("Physics");
-  //  fBench->Print("Output");
-  //  fBench->Print("Cuts");
-  //}
-  //if( (fVerbose>1 || fDoBench) && !fatal )
-  //  fBench->Print("Total");
+  if( fDoBench && !fatal ) {
+    cout << "Timing summary:" << endl;
+    fBench->Print("Init");
+    fBench->Print("RawDecode");
+    fBench->Print("Decode");
+    fBench->Print("CoarseTracking");
+    fBench->Print("CoarseReconstruct");
+    fBench->Print("Tracking");
+    fBench->Print("Reconstruct");
+    fBench->Print("Physics");
+    fBench->Print("Output");
+    fBench->Print("Cuts");
+  }
+  if( (fVerbose>1 || fDoBench) && !fatal ){
+    fBench->Print("Total");
+  }
 
   //keep the last run available
   //  gHaRun = NULL;
