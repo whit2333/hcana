@@ -30,15 +30,17 @@
 #include <iostream>
 #include <fstream>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/stdout_color_sinks.h" //support for stdout logging
-#include "spdlog/sinks/basic_file_sink.h" // support for basic file logging
+//#include "spdlog/spdlog.h"
+//#include "spdlog/sinks/stdout_color_sinks.h" //support for stdout logging
+//#include "spdlog/sinks/basic_file_sink.h" // support for basic file logging
+
+#include "hcana/Logger.h"
 
 //class THaScintillator;
 
-class THcHallCSpectrometer : public THaSpectrometer {
+class THcHallCSpectrometer : public hcana::ConfigLogging<THaSpectrometer> {
 private:
-  std::shared_ptr<spdlog::logger> _logger;
+  //std::shared_ptr<spdlog::logger> _logger;
 
 public:
   THcHallCSpectrometer( const char* name, const char* description );

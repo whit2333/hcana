@@ -369,12 +369,11 @@ Int_t THcTrigDet::ReadDatabase(const TDatime& date) {
 	  }
   }
  
-  cout << " Trig = " << fTrigNames.size() << endl;
-     for (UInt_t j = 0; j <fTrigNames.size(); j++) {
-       cout << fTrigNames[j] << " " << fTrigId[j] << endl;
-     }
+  _det_logger->info("Number of Triggers : {} ", fTrigNames.size());
+  for (UInt_t j = 0; j <fTrigNames.size(); j++) {
+    _det_logger->info("{}  {} ", fTrigNames[j],fTrigId[j]);
+  }
   
-
   return kOK;
 }
 

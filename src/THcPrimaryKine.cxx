@@ -79,21 +79,21 @@ Int_t THcPrimaryKine::DefineVariables( EMode mode )
   fIsSetup = ( mode == kDefine );
 
   RVarDef vars[] = {
-    { "Q2",      "4-momentum transfer squared (GeV^2)",     "fQ2" },
-    { "omega",   "Energy transfer (GeV)",                   "fOmega" },
-    { "W2",      "Invariant mass (GeV^2) for Mp      ",     "fW2" }, 
-    { "W",      "Sqrt(Invariant mass)  for Mp      ",     "fW" }, 
-    { "x_bj",    "Bjorken x",                               "fXbj" },
-    { "scat_ang_rad",   "Scattering angle (rad)",                  "fScatAngle" },
-    { "scat_ang_deg",   "Scattering angle (deg)",                  "fScatAngle_deg" },
-    { "epsilon", "Virtual photon polarization factor",      "fEpsilon" },
-    { "q3m",     "Magnitude of 3-momentum transfer",        "fQ3mag" },
-    { "th_q",    "Theta of 3-momentum vector (rad)",        "fThetaQ" },
-    { "ph_q",    "Phi of 3-momentum vector (rad)",          "fPhiQ" },
-    { "nu",      "Energy transfer (GeV)",                   "fOmega" },
-    { "q_x",     "x-cmp of Photon vector in the lab",       "fQ.X()" },
-    { "q_y",     "y-cmp of Photon vector in the lab",       "fQ.Y()" },
-    { "q_z",     "z-cmp of Photon vector in the lab",       "fQ.Z()" },
+    { "Q2"           , "4-momentum transfer squared (GeV^2)" , "fQ2"            },
+    { "omega"        , "Energy transfer (GeV)"               , "fOmega"         },
+    { "W2"           , "Invariant mass (GeV^2) for Mp      " , "fW2"            },
+    { "W"            , "Sqrt(Invariant mass)  for Mp      "  , "fW"             },
+    { "x_bj"         , "Bjorken x"                           , "fXbj"           },
+    { "scat_ang_rad" , "Scattering angle (rad)"              , "fScatAngle"     },
+    { "scat_ang_deg" , "Scattering angle (deg)"              , "fScatAngle_deg" },
+    { "epsilon"      , "Virtual photon polarization factor"  , "fEpsilon"       },
+    { "q3m"          , "Magnitude of 3-momentum transfer"    , "fQ3mag"         },
+    { "th_q"         , "Theta of 3-momentum vector (rad)"    , "fThetaQ"        },
+    { "ph_q"         , "Phi of 3-momentum vector (rad)"      , "fPhiQ"          },
+    { "nu"           , "Energy transfer (GeV)"               , "fOmega"         },
+    { "q_x"          , "x-cmp of Photon vector in the lab"   , "fQ.X()"         },
+    { "q_y"          , "y-cmp of Photon vector in the lab"   , "fQ.Y()"         },
+    { "q_z"          , "z-cmp of Photon vector in the lab"   , "fQ.Z()"         },
     { 0 }
   };
   return DefineVarsFromList( vars, mode );
@@ -196,13 +196,15 @@ Int_t THcPrimaryKine::ReadDatabase( const TDatime& date )
 {
 
 #ifdef WITH_DEBUG
-  cout << "In THcPrimaryKine::ReadDatabase()" << endl;
+  _param_logger->debug("In THcPrimaryKine::ReadDatabase()" );
 #endif
 
   char prefix[2];
 
   prefix[0] = tolower(GetName()[0]);
   prefix[1] = '\0';
+
+  _param_logger->info("THcPrimaryKine  prefix = {}", prefix );
   
   fOopCentralOffset = 0.0;
   DBRequest list[]={
@@ -219,35 +221,39 @@ Int_t THcPrimaryKine::ReadDatabase( const TDatime& date )
 //_____________________________________________________________________________
 void THcPrimaryKine::SetMass( Double_t m ) 
 {
-  if( !IsInit())
-    fM = m; 
-  else
+  if( !IsInit()) {
+    fM = m;
+  } else {
     PrintInitError("SetMass()");
+  }
 }
 
 //_____________________________________________________________________________
 void THcPrimaryKine::SetTargetMass( Double_t m ) 
 {
-  if( !IsInit())
-    fMA = m; 
-  else
+  if( !IsInit()) {
+    fMA = m;
+  } else {
     PrintInitError("SetTargetMass()");
+  }
 }
 
 //_____________________________________________________________________________
 void THcPrimaryKine::SetSpectrometer( const char* name ) 
 {
-  if( !IsInit())
+  if( !IsInit()) {
     fSpectroName = name; 
-  else
+  } else {
     PrintInitError("SetSpectrometer()");
+  }
 }
 
 //_____________________________________________________________________________
 void THcPrimaryKine::SetBeam( const char* name ) 
 {
-  if( !IsInit())
+  if( !IsInit()) {
     fBeamName = name; 
-  else
+  } else {
     PrintInitError("SetBeam()");
+  }
 }

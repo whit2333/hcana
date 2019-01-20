@@ -108,7 +108,7 @@ using namespace std;
 
 //_____________________________________________________________________________
 THcHallCSpectrometer::THcHallCSpectrometer( const char* name, const char* description ) :
-  THaSpectrometer( name, description ), fPresent(kTRUE)
+  hcana::ConfigLogging<THaSpectrometer>( name, description ), fPresent(kTRUE)
 {
   // Constructor. Defines the standard detectors for the HRS.
   //  AddDetector( new THaTriggerTime("trg","Trigger-based time offset"));
@@ -118,10 +118,10 @@ THcHallCSpectrometer::THcHallCSpectrometer( const char* name, const char* descri
   SetTrSorting(kTRUE);
   eventtypes.clear();
 
-  _logger = spdlog::get("config");
-  if(!_logger) {
-    _logger = spdlog::stdout_color_mt("config");
-  }
+  //_logger = spdlog::get("config");
+  //if(!_logger) {
+  //  _logger = spdlog::stdout_color_mt("config");
+  //}
 }
 
 //_____________________________________________________________________________
@@ -233,9 +233,7 @@ Int_t THcHallCSpectrometer::ReadDatabase( const TDatime& date )
 
   char prefix[2];
 
-#ifdef WITH_DEBUG
-  cout << " GetName() " << GetName() << endl;
-#endif
+  _spec_logger->info("Spectrometer  {} ", GetName());
   
   prefix[0]=tolower(GetName()[0]);
   prefix[1]='\0';
@@ -349,26 +347,29 @@ Int_t THcHallCSpectrometer::ReadDatabase( const TDatime& date )
   EnforcePruneLimits();
 
 #ifdef WITH_DEBUG
-  //cout <<  "\n\n\nhodo planes = " <<  fNPlanes << endl;
-  //cout <<  "sel using scin = "    <<  fSelUsingScin << endl;
-  //cout <<  "fPruneXp = "          <<  fPruneXp << endl;
-  //cout <<  "fPruneYp = "          <<  fPruneYp << endl;
-  //cout <<  "fPruneYtar = "        <<  fPruneYtar << endl;
-  //cout <<  "fPruneDelta = "       <<  fPruneDelta << endl;
-  //cout <<  "fPruneBeta = "        <<  fPruneBeta << endl;
-  //cout <<  "fPruneDf = "          <<  fPruneDf << endl;
-  //cout <<  "fPruneChiBeta = "     <<  fPruneChiBeta << endl;
-  //cout <<  "fPruneFpTime = "      <<  fPruneFpTime << endl;
-  //cout <<  "fPruneNPMT = "        <<  fPruneNPMT << endl;
-  //cout <<  "sel using prune = "   <<  fSelUsingPrune << endl;
+  _logger->debug("Spectrometer  {} ", GetName());
+  _logger->debug("hodo planes     = {}" , fNPlanes       );
+  _logger->debug("sel using scin  = {}" , fSelUsingScin  );
+  _logger->debug("fPruneXp        = {}" , fPruneXp       );
+  _logger->debug("fPruneYp        = {}" , fPruneYp       );
+  _logger->debug("fPruneYtar      = {}" , fPruneYtar     );
+  _logger->debug("fPruneDelta     = {}" , fPruneDelta    );
+  _logger->debug("fPruneBeta      = {}" , fPruneBeta     );
+  _logger->debug("fPruneDf        = {}" , fPruneDf       );
+  _logger->debug("fPruneChiBeta   = {}" , fPruneChiBeta  );
+  _logger->debug("fPruneFpTime    = {}" , fPruneFpTime   );
+  _logger->debug("fPruneNPMT      = {}" , fPruneNPMT     );
+  _logger->debug("sel using prune = {}" , fSelUsingPrune );
 #endif
-  cout <<  "fPartMass = "         <<  fPartMass << endl;
-  cout <<  "fPcentral = "         <<  fPcentral << " " <<fPCentralOffset << endl;
-  cout <<  "fThetalab = "         <<  fTheta_lab << " " <<fThetaCentralOffset << endl;
-  fPcentral= fPcentral*(1.+fPCentralOffset/100.);
+  _spec_logger->info("Spectrometer  {} ", GetName());
+  _spec_logger->info("fPartMass = {} ", fPartMass);
+  _spec_logger->info("fPcentral = {} {}", fPcentral, fPCentralOffset);
+  _spec_logger->info("fThetalab = {} {}", fTheta_lab, fThetaCentralOffset);
+
+  fPcentral = fPcentral * (1. + fPCentralOffset / 100.);
   // Check that these offsets are in radians
-  fTheta_lab=fTheta_lab + fThetaCentralOffset*TMath::RadToDeg();
-  Double_t ph = fPhi_lab+fPhiOffset*TMath::RadToDeg();
+  fTheta_lab  = fTheta_lab + fThetaCentralOffset * TMath::RadToDeg();
+  Double_t ph = fPhi_lab + fPhiOffset * TMath::RadToDeg();
   // SetCentralAngles method in podd THaSpectrometer
   // fTheta_lab and ph are geographical angles, converts to spherical coordinates
   // Need to set fTheta_lab to negative for spectrometer like HMS on beam right
@@ -377,12 +378,12 @@ Int_t THcHallCSpectrometer::ReadDatabase( const TDatime& date )
   Bool_t bend_down = kFALSE;
   SetCentralAngles(fTheta_lab, ph, bend_down);
   Double_t off_z = 0.0;
-  fPointingOffset.SetXYZ( fMispointing_x, fMispointing_y, off_z );
+  fPointingOffset.SetXYZ(fMispointing_x, fMispointing_y, off_z);
   //
   ifstream ifile;
   ifile.open(reconCoeffFilename.c_str());
-  if(!ifile.is_open()) {
-    Error(here, "error opening reconstruction coefficient file %s",reconCoeffFilename.c_str());
+  if (!ifile.is_open()) {
+    Error(here, "error opening reconstruction coefficient file %s", reconCoeffFilename.c_str());
     //    return kInitError; // Is this the right return code?
     return kOK;
   }
@@ -426,9 +427,9 @@ Int_t THcHallCSpectrometer::ReadDatabase( const TDatime& date )
     fNReconTerms++;
     good = getline(ifile,line).good();
   }
-  cout << "Read " << fNReconTerms << " matrix element terms"  << endl;
+  _spec_logger->info("Read {} matrix element terms", fNReconTerms);
   if(!good) {
-    Error(here, "Error processing reconstruction coefficient file %s",reconCoeffFilename.c_str());
+    _spec_logger->error("{} Error processing reconstruction coefficient file {}",here, reconCoeffFilename.c_str());
     return kInitError; // Is this the right return code?
   }
   return kOK;

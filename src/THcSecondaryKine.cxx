@@ -124,21 +124,20 @@ THaAnalysisObject::EStatus THcSecondaryKine::Init( const TDatime& run_time )
 
   fStatus = kOK;
 
-  fSpectro = dynamic_cast<THcHallCSpectrometer*>
-    ( FindModule( fSpectroName.Data(), "THcHallCSpectrometer"));
+  fSpectro =
+      dynamic_cast<THcHallCSpectrometer*>(FindModule(fSpectroName.Data(), "THcHallCSpectrometer"));
   if( !fSpectro ) {
     fStatus = kInitError;
     return fStatus;
   }
 
-  fPrimary = dynamic_cast<THcPrimaryKine*>
-    ( FindModule( fPrimaryName.Data(), "THcPrimaryKine"));
-  if(!fPrimary) {
+  fPrimary = dynamic_cast<THcPrimaryKine*>(FindModule(fPrimaryName.Data(), "THcPrimaryKine"));
+  if (!fPrimary) {
     fStatus = kInitError;
     return fStatus;
   }
 
-  if( (fStatus=THaPhysicsModule::Init( run_time )) != kOK ) {
+  if ((fStatus = THaPhysicsModule::Init(run_time)) != kOK) {
     return fStatus;
   }
 
