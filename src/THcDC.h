@@ -19,7 +19,7 @@
 #include "spdlog/sinks/stdout_color_sinks.h" //support for stdout logging
 #include "spdlog/sinks/basic_file_sink.h" // support for basic file logging
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 #define NUM_FPRAY 4
 

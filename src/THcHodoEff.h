@@ -23,7 +23,7 @@
 #include "THaSpectrometer.h"
 #include "THaTrack.h"
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class THcHodoEff : public hcana::ConfigLogging<THaPhysicsModule> {
 public:

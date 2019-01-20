@@ -13,7 +13,7 @@
 #include <iomanip>
 #include <map>
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 using namespace std;
 

@@ -133,8 +133,9 @@ Int_t Scandalizer::Process( THaRunBase* run )
 	 << endl;
     cout << endl << "Starting analysis" << endl;
   }
-  if( fVerbose>2 && fRun->GetFirstEvent()>1 )
-    cout << "Skipping " << fRun->GetFirstEvent() << " events" << endl;
+  if( fVerbose>2 && fRun->GetFirstEvent()>1 ) {
+    _logger->info("Skipping {} events", fRun->GetFirstEvent());
+  }
 
   //--- The main event loop.
 
@@ -196,7 +197,7 @@ Int_t Scandalizer::Process( THaRunBase* run )
 
     //--- Print marks periodically
     if( (fVerbose>1) && (evnum > 0) && (evnum % fMarkInterval == 0)){
-      cout << "test run: "<< fRun->GetNumber() << ", " << dec << evnum << endl;
+      _logger->info("Run {:5},  event {:8}", fRun->GetNumber(), evnum);
     }
     // Auto save file so it is not junk and can be processed while we write
     if( (evnum > 0) &&(evnum % fAutoSaveInterval == 0)){

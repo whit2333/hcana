@@ -55,12 +55,15 @@ add_library(${LIBNAME} SHARED ${src} ${allheaders} ${LIBNAME}Dict.cxx)
 add_library(${PROJECT_NAME}::${LIBNAME} ALIAS ${LIBNAME})
 
 target_include_directories(${LIBNAME}
-  PUBLIC
+  PUBLIC #$<INSTALL_INTERFACE:include>
     $<INSTALL_INTERFACE:include>
-    $<INSTALL_INTERFACE:include/hcana>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/hcana>
+    $<BUILD_INTERFACE:${Podd_DIR}/../../include/podd2>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>  # for hc_compiledata.h
+    $<BUILD_INTERFACE:${SPDLOG_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:${SPDLOG_INCLUDE_DIR}>
   )
 
 target_compile_options(${LIBNAME}
@@ -94,12 +97,18 @@ install(FILES ${allheaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 #install(DIRECTORY nlohmann DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(DIRECTORY include/hcana  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(DIRECTORY include/spdlog DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hcana)
+#install(DIRECTORY include/spdlog DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hcana)
 
 #----------------------------------------------------------------------------
 # libHallCDict
 build_root_dictionary(${LIBNAME} ${headers}
-  INCLUDEDIRS -I${CMAKE_CURRENT_SOURCE_DIR} -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${Podd_DIR}/../../include
+  INCLUDEDIRS 
+  $<BUILD_INTERFACE:-I${SPDLOG_INCLUDE_DIR}>
+  -I${CMAKE_CURRENT_SOURCE_DIR} 
+  -I${CMAKE_CURRENT_SOURCE_DIR}/include 
+  -I${CMAKE_CURRENT_SOURCE_DIR}/include/hcana
+  -I${Podd_DIR}/../../include
+  -I${Podd_DIR}/../../include/podd2
   TARGETS ${LIBNAME}
   LINKDEF include/HallC_LinkDef.h 
   )

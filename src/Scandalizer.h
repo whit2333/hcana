@@ -5,6 +5,7 @@
 #include "THcAnalyzer.h"
 #include <iostream>
 
+
 namespace hcana {
 
   class Scandalizer : public THcAnalyzer {

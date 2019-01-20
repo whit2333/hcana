@@ -26,7 +26,7 @@
 #include "THcHallCSpectrometer.h"
 #include "THaTrack.h"
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class THcCoinTime : public hcana::ConfigLogging<THaPhysicsModule> {
 public:

@@ -15,7 +15,7 @@
 #include "THcShowerHit.h"
 #include "TMath.h"
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class THcShower : public hcana::ConfigLogging<THaNonTrackingDetector>, public THcHitList {
 

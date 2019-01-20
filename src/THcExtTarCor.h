@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "THaExtTarCor.h"
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class THaVertexModule;
 

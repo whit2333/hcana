@@ -32,6 +32,16 @@ endif()
 #set_diagnostic_flags(WALL WEXTRA)
 #report_build_info()
 
+find_package(spdlog REQUIRED)
+if(NOT spdlog_FOUND) 
+  message("spdlog not found.")
+  message(FATAL_ERROR "spdlog should be installed with analyzer if it is not available on the system.")
+  #set(SPDLOG_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/3rd_party/spdlog/include)
+else()
+  get_target_property(SPDLOG_INCLUDE_DIR spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
+endif()
+
+
 #----------------------------------------------------------------------------
 # Install in GNU-style directory layout
 include(GNUInstallDirs)

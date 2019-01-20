@@ -299,9 +299,9 @@ The ENGINE CTP support parameter "blocks" which were marked with
 	continue;		// Skip to next line
       } else {
 	if(linecount==1) {
-	  cout << "WARNING: THcParmList::Load in database mode but first line is not" << endl;
-	  cout << "   a run number or run number range.  Parameter definitions" << endl;
-	  cout << "   will be ignored until a run number or range is specified." << endl;
+	  _logger->warn("THcParmList::Load in database mode but first line is not\n"
+	                "   a run number or run number range.  Parameter definitions\n"
+	                "   will be ignored until a run number or range is specified.\n");
 	}
       }
     }
@@ -595,15 +595,15 @@ zero), then there will be no error if the parameter is missing.
 	    *static_cast<Int_t*>(ti->var)=*(Int_t *)this->Find(key)->GetValuePointer();
 	  } else if (ty == kDouble) {
 	    *static_cast<Int_t*>(ti->var)=TMath::Nint(*(Double_t *)this->Find(key)->GetValuePointer());
-	    cout << "*** WARNING!!!  Rounded " << key << " to nearest integer " << endl;
+	    _logger->warn("Rounded {} to nearest integer ",key);
 	  } else {
-	    cout << "*** ERROR!!! Type Mismatch " << key << endl;
+	    _logger->error("Type Mismatch {} ",key);
 	  }
 	  this_cnt=1;
 	  break;
 	default:
-	  Error("THcParmList","Invalid type to read %s",key);
-	  break;
+          _logger->error("THcParmList: Invalid type to read {} ",key);
+          break;
 	}
       }
     } else {			// See if it is a text variable
@@ -663,8 +663,7 @@ Int_t THcParmList::ReadArray(const char* attrC, T* array, Int_t size)
   Int_t sz = var->GetLen();
   const void *vp = var->GetValuePointer();
   if(size != sz) {
-    cout << "*** WARNING: requested " << size << " elements of " << attrC <<
-      " which has length " << sz << endl;
+    _logger->warn("requested {} elements of {} which has length {}", size, attrC, sz);
   }
   if(size<sz) sz = size;
   Int_t donint = 0;

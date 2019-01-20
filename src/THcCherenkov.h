@@ -12,7 +12,7 @@
 #include "THcHitList.h"
 #include "THcCherenkovHit.h"
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class THcHodoscope;
 

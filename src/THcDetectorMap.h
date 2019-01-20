@@ -11,7 +11,7 @@
 #include "THaDetMap.h"
 #include <list>
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class THcDetectorMap : public hcana::ConfigLogging<TObject> {
 

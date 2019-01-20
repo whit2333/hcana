@@ -31,7 +31,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class THaScCalib;
 

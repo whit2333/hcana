@@ -10,7 +10,7 @@
 #include "THaVarList.h"
 #include "THaTextvars.h"
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 #ifdef WITH_CCDB
 #ifdef __CINT__

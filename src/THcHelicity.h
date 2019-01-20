@@ -11,7 +11,7 @@
 
 #include "THaHelicityDet.h"
 #include "THcHelicityReader.h"
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class TH1F;
 

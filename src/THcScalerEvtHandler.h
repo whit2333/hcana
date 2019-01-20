@@ -19,7 +19,7 @@
 #include "TString.h"
 #include <cstring>
 
-#include "Logger.h"
+#include "hcana/Logger.h"
 
 class HCScalerLoc { // Utility class used by THcScalerEvtHandler
  public:
