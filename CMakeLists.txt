@@ -32,6 +32,11 @@ endif()
 #set_diagnostic_flags(WALL WEXTRA)
 #report_build_info()
 
+#https://github.com/fmtlib/fmt.git
+find_package(fmt REQUIRED)
+get_target_property(FMT_INCLUDE_DIR fmt::fmt INTERFACE_INCLUDE_DIRECTORIES)
+
+add_definitions(-DSPDLOG_FMT_EXTERNAL )
 find_package(spdlog REQUIRED)
 if(NOT spdlog_FOUND) 
   message("spdlog not found.")
@@ -41,8 +46,6 @@ else()
   get_target_property(SPDLOG_INCLUDE_DIR spdlog::spdlog INTERFACE_INCLUDE_DIRECTORIES)
 endif()
 
-#https://github.com/fmtlib/fmt.git
-find_package(fmt REQUIRED)
 
 #----------------------------------------------------------------------------
 # Install in GNU-style directory layout

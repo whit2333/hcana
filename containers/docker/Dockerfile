@@ -21,6 +21,7 @@ RUN   ls -lrth /usr/local/lib/lib*.so \
   && cmake ../.  && make -j20 && make install && cd /tmp  \
   && git clone https://eicweb.phy.anl.gov/jlab/hcana.git \
   && mkdir hcana/build && cd hcana/build  \
+  && git checkout scandalizer && git pull \
   && cmake ../.  && make -j20 && make install \ 
   && cd /tmp && rm -rf analyzer && rm -rf hcana 
 

@@ -64,6 +64,7 @@ target_include_directories(${LIBNAME}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>  # for hc_compiledata.h
     $<BUILD_INTERFACE:${SPDLOG_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:${SPDLOG_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${FMT_INCLUDE_DIR}>
   )
 
 target_compile_options(${LIBNAME}
@@ -104,6 +105,7 @@ install(DIRECTORY include/hcana  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 build_root_dictionary(${LIBNAME} ${headers}
   INCLUDEDIRS 
   $<BUILD_INTERFACE:-I${SPDLOG_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:-I${FMT_INCLUDE_DIR}>
   -I${CMAKE_CURRENT_SOURCE_DIR} 
   -I${CMAKE_CURRENT_SOURCE_DIR}/include 
   -I${CMAKE_CURRENT_SOURCE_DIR}/include/hcana
