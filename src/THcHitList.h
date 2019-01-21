@@ -26,9 +26,7 @@ using namespace std;
 //class THaDetMap;
 class THcConfigEvtHandler;
 
-class THcHitList {
-  protected:
-    std::shared_ptr<spdlog::logger> _hitlist_logger;
+class THcHitList : public podd2::HitLogging<podd2::EmptyBase> {
 
 public:
 

@@ -16,7 +16,7 @@
 
 class THcHodoscope;
 
-class THcCherenkov : public hcana::ConfigLogging<THaNonTrackingDetector>, public THcHitList {
+class THcCherenkov : public THaNonTrackingDetector, public THcHitList {
 
   using vec = std::vector<Double_t>;
 

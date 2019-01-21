@@ -45,7 +45,7 @@ using std::setprecision;
 //_____________________________________________________________________________
 THcCherenkov::THcCherenkov( const char* name, const char* description,
                             THaApparatus* apparatus ) :
-  hcana::ConfigLogging<THaNonTrackingDetector>(name,description,apparatus)
+  THaNonTrackingDetector(name,description,apparatus)
 {
   // Normal constructor with name and description
   frAdcPedRaw       = new TClonesArray("THcSignalHit", MaxNumCerPmt*MaxNumAdcPulse);
@@ -76,8 +76,7 @@ THcCherenkov::THcCherenkov( const char* name, const char* description,
 }
 
 //_____________________________________________________________________________
-THcCherenkov::THcCherenkov( ) :
-  hcana::ConfigLogging<THaNonTrackingDetector>()
+THcCherenkov::THcCherenkov( ) 
 {
   // Constructor
   frAdcPedRaw       = NULL;
@@ -203,7 +202,7 @@ Int_t THcCherenkov::ReadDatabase( const TDatime& date )
 
   Bool_t optional = true;
 
-  _logger->info("Created Cherenkov detector {}.{} with {} PMTs",GetApparatus()->GetName(), GetName(), fNelem);
+  _det_logger->info("Created Cherenkov detector {}.{} with {} PMTs",GetApparatus()->GetName(), GetName(), fNelem);
   //cout << "Created Cherenkov detector " << GetApparatus()->GetName() << "."
   //     << GetName() << " with " << fNelem << " PMTs" << endl;
 

@@ -16,7 +16,7 @@
 
 class THcHodoscope;
 
-class THcAerogel : public hcana::ConfigLogging<THaNonTrackingDetector>, public THcHitList {
+class THcAerogel : public THaNonTrackingDetector, public THcHitList {
 
  public:
   THcAerogel(const char* name, const char* description = "", THaApparatus* a = NULL);

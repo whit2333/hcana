@@ -36,7 +36,7 @@ using namespace std;
 //_____________________________________________________________________________
 THcAerogel::THcAerogel( const char* name, const char* description,
                         THaApparatus* apparatus ) :
-  hcana::ConfigLogging<THaNonTrackingDetector>(name,description,apparatus),
+  THaNonTrackingDetector(name,description,apparatus),
   fPresentP(0),
   fAdcPosTimeWindowMin(0), fAdcPosTimeWindowMax(0), fAdcNegTimeWindowMin(0),
   fAdcNegTimeWindowMax(0), fRegionValue(0), fPosGain(0), fNegGain(0),
@@ -57,7 +57,7 @@ THcAerogel::THcAerogel( const char* name, const char* description,
 
 //_____________________________________________________________________________
 THcAerogel::THcAerogel( ) :
-  hcana::ConfigLogging<THaNonTrackingDetector>(),
+  THaNonTrackingDetector(),
   fAdcPosTimeWindowMin(0), fAdcPosTimeWindowMax(0), fAdcNegTimeWindowMin(0),
   fAdcNegTimeWindowMax(0), fRegionValue(0), fPosGain(0), fNegGain(0),
   frPosAdcPedRaw(0), frPosAdcPulseIntRaw(0), frPosAdcPulseAmpRaw(0),
@@ -165,7 +165,7 @@ THaAnalysisObject::EStatus THcAerogel::Init( const TDatime& date )
   EngineDID[0] = toupper(GetApparatus()->GetName()[0]);
   if( gHcDetectorMap->FillMap(fDetMap, EngineDID) < 0 ) {
     static const char* const here = "Init()";
-    Error( Here(here), "Error filling detectormap for %s.", EngineDID );
+    _det_logger->error( "{} Error filling detectormap for {}.", "THcAerogel::Init", EngineDID );
     return kInitError;
   }
 
@@ -182,7 +182,7 @@ THaAnalysisObject::EStatus THcAerogel::Init( const TDatime& date )
    if(  !app ||
       !(fglHod = dynamic_cast<THcHodoscope*>(app->GetDetector("hod"))) ) {
     static const char* const here = "ReadDatabase()";
-    Warning(Here(here),"Hodoscope \"%s\" not found. ","hod");
+    _det_logger->warn("{} Hodoscope \"{}\" not found. ",Here(here),"hod");
   }
 
   fPresentP = 0;
@@ -218,8 +218,7 @@ Int_t THcAerogel::ReadDatabase( const TDatime& date )
 
   Bool_t optional = true;
 
-  _logger->info("Created aerogel detector {}.{} with {} PMT pairs.", GetApparatus()->GetName(),
-                GetName(), fNelem);
+  _det_logger->info("Created aerogel detector {}.{} with {} PMT pairs.", GetApparatus()->GetName(), GetName(), fNelem);
   //cout << "Created aerogel detector " << GetApparatus()->GetName() << "."
   //     << GetName() << " with " << fNelem << " PMT pairs" << endl;
 

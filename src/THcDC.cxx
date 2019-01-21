@@ -44,7 +44,7 @@ using namespace std;
 THcDC::THcDC(
  const char* name, const char* description,
 				  THaApparatus* apparatus ) :
-  hcana::ConfigLogging<THaTrackingDetector>(name,description,apparatus)
+  THaTrackingDetector(name,description,apparatus)
 {
   // Constructor
 
@@ -142,8 +142,8 @@ void THcDC::Setup(const char* name, const char* description)
     fHMSStyleChambers = 0;
   }
 
-  _logger->info("Plane Name List: {}", planenamelist);
-  _logger->info("Drift Chambers: {} planes in {} chambers", fNPlanes, fNChambers);
+  _det_logger->info("Plane Name List: {}", planenamelist);
+  _det_logger->info("Drift Chambers: {} planes in {} chambers", fNPlanes, fNChambers);
   //cout << "Plane Name List: " << planenamelist << endl;
   //cout << "Drift Chambers: " <<  fNPlanes << " planes in " << fNChambers << " chambers" << endl;
 
@@ -151,7 +151,7 @@ void THcDC::Setup(const char* name, const char* description)
 
   if(plane_names.size() != (UInt_t) fNPlanes) {
     //cout << "ERROR: Number of planes " << fNPlanes << " doesn't agree with number of plane names " << plane_names.size() << endl;
-    _logger->error("ERROR: Number of planes {} doesn't agree with number of plane names {}",
+    _det_logger->error("ERROR: Number of planes {} doesn't agree with number of plane names {}",
                    fNPlanes, plane_names.size());
 
     // Should quit.  Is there an official way to quit?
@@ -173,7 +173,7 @@ void THcDC::Setup(const char* name, const char* description)
 
     THcDriftChamberPlane* newplane = new THcDriftChamberPlane(fPlaneNames[i], desc, i+1, this);
     if( !newplane or newplane->IsZombie() ) {
-      Error( Here(here), "Error creating Drift Chamber plane %s. Call expert.", name);
+      _det_logger->error( "{} Error creating Drift Chamber plane {}. Call expert.", Here(here), name);
       MakeZombie();
       delete [] desc;
       delete [] desc1;
@@ -193,7 +193,7 @@ void THcDC::Setup(const char* name, const char* description)
     THcDriftChamber* newchamber = new THcDriftChamber(desc1, desc, i+1, this);
     fChambers.push_back(newchamber);
     //cout << "Created Drift Chamber " << i+1 << ", " << desc1 << endl;
-    _logger->info("Created Drift Chamber {}, {}" , i+1 , desc1);
+    _det_logger->info("Created Drift Chamber {}, {}" , i+1 , desc1);
     newchamber->SetHMSStyleFlag(fHMSStyleChambers); // Tell the chamber its style
   }
   delete [] desc;
@@ -201,8 +201,7 @@ void THcDC::Setup(const char* name, const char* description)
 }
 
 //_____________________________________________________________________________
-THcDC::THcDC( ) :
-  hcana::ConfigLogging<THaTrackingDetector>()
+THcDC::THcDC( ) 
 {
   // Constructor
 }
@@ -219,13 +218,13 @@ THaAnalysisObject::EStatus THcDC::Init( const TDatime& date )
   EngineDID[0] = toupper(GetApparatus()->GetName()[0]);
   if( gHcDetectorMap->FillMap(fDetMap, EngineDID) < 0 ) {
     static const char* const here = "Init()";
-    Error( Here(here), "Error filling detectormap for %s.", EngineDID );
+    _det_logger->error("{} Error filling detectormap for {}.",  Here(here), EngineDID );
     return kInitError;
   }
 
   // Should probably put this in ReadDatabase as we will know the
   // maximum number of hits after setting up the detector map
-  _logger->info("DC tdc ref time cut = {} ", fTDC_RefTimeCut);
+  _det_logger->info("DC tdc ref time cut = {} ", fTDC_RefTimeCut);
   //cout << " DC tdc ref time cut = " << fTDC_RefTimeCut  << endl;
   InitHitList(fDetMap, "THcRawDCHit", fDetMap->GetTotNumChan()+1, fTDC_RefTimeCut, 0);
 
@@ -397,7 +396,7 @@ Int_t THcDC::ReadDatabase( const TDatime& date )
     plane_counts_string += std::to_string(fNWires[i]);
   }
   //cout << endl;
-  _logger->info("Plane counts: {}", plane_counts_string);
+  _det_logger->info("Plane counts: {}", plane_counts_string);
 
   fIsInit = true;
 

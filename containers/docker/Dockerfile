@@ -18,12 +18,13 @@ RUN   ls -lrth /usr/local/lib/lib*.so \
   && export PATH=/usr/local/bin:$PATH  \
   && git clone https://eicweb.phy.anl.gov/jlab/analyzer.git \
   && mkdir analyzer/build && cd analyzer/build  && git checkout scandalizer && git pull \
-  && cmake ../.  && make -j20 && make install && cd /tmp  \
+  && cmake ../.  && make -j20 && make install \
+  && cd /tmp  && rm -rf analyzer \
   && git clone https://eicweb.phy.anl.gov/jlab/hcana.git \
   && mkdir hcana/build && cd hcana/build  \
   && git checkout scandalizer && git pull \
   && cmake ../.  && make -j20 && make install \ 
-  && cd /tmp && rm -rf analyzer && rm -rf hcana 
+  && cd /tmp && rm -rf hcana 
 
 
 #-DCMAKE_CXX_FLAGS=" -march=haswell -O3 -mfma -malign-data=cacheline -finline-functions "
