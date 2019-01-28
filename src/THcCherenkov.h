@@ -112,6 +112,8 @@ class THcCherenkov : public THaNonTrackingDetector, public THcHitList {
   Double_t* fAdcPulseAmpTest;
   Int_t*    fAdcGoodElem;
 
+  std::vector<std::pair<double,int>> fAdcPulseAmpsInTimeWindow; 
+
   // 12 Gev FADC variables
   TClonesArray* frAdcPedRaw;
   TClonesArray* frAdcPulseIntRaw;
