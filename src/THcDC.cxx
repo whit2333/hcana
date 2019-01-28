@@ -49,7 +49,7 @@ THcDC::THcDC(
   // Constructor
 
   fNPlanes = 0;			// No planes until we make them
-
+  _sub_logger = _det_logger->clone("THcDC");
   fXCenter = NULL;
   fYCenter = NULL;
   fMinHits = NULL;
@@ -97,6 +97,7 @@ THcDC::THcDC(
   //if(!_logger) {
   //  _logger = spdlog::stdout_color_mt("config");
   //}
+  _sub_logger->debug("THcDC constructor");
 }
 
 //_____________________________________________________________________________

@@ -24,6 +24,9 @@ class TClonesArray;
 
 class THcDC : public THaTrackingDetector, public THcHitList {
 
+protected:
+  std::shared_ptr<spdlog::logger> _sub_logger; //!
+
 public:
   THcDC( const char* name, const char* description = "",
 		   THaApparatus* a = NULL );
