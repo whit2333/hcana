@@ -467,6 +467,9 @@ Int_t THcCherenkov::CoarseProcess(TClonesArray&) {
         [](std::pair<double,int> a, std::pair<double,int> b){ 
           return a.first > b.first;
         });
+  for( const auto& v : fAdcPulseAmpsInTimeWindow){
+    std::cout << v.first << ", " << v.second <<"\n";
+  }
   // Loop over the npmt
   for (Int_t npmt = 0; npmt < fNelem; npmt++) {
     Int_t ielem = fAdcGoodElem[npmt];
