@@ -460,17 +460,10 @@ Int_t THcCherenkov::CoarseProcess(TClonesArray&) {
     }
   }
 
-  for (auto& [i, hit_vec] : fAdcPulseAmpsInTimeWindow) {
+  for (auto& [npmt, hit_vec] : fAdcPulseAmpsInTimeWindow) {
     // sort the hits by pulse amplitude
     std::sort(std::begin(hit_vec), std::end(hit_vec),
               [](std::pair<double, int> a, std::pair<double, int> b) { return a.first > b.first; });
-    // debugging
-    //std::cout << "pmt " << i << "\n";
-    //for (const auto& v : hit_vec) {
-    //  std::cout << v.first << ", " << v.second << "\n";
-    //}
-  }
-  for (auto& [npmt, hit_vec] : fAdcPulseAmpsInTimeWindow) {
     // these two lines could be removed if a clear on the whole map is issued above
     fAdcGoodElem[npmt]     = -1;
     fAdcPulseAmpTest[npmt] = -1000;
@@ -491,35 +484,8 @@ Int_t THcCherenkov::CoarseProcess(TClonesArray&) {
 
       fTotNumGoodAdcHits++;
       fNumGoodAdcHits.at(npmt) = npmt + 1;
-      //fNumGoodAdcHits.at(npmt) = npmt + 1;
     }
   }
-  // Loop over the npmt
-  //for (Int_t npmt = 0; npmt < fNelem; npmt++) {
-  //  Int_t ielem = fAdcGoodElem[npmt];
-  //  if (ielem != -1) {
-  //    Double_t pulsePed       = ((THcSignalHit*)frAdcPed->ConstructedAt(ielem))->GetData();
-  //    Double_t pulseInt       = ((THcSignalHit*)frAdcPulseInt->ConstructedAt(ielem))->GetData();
-  //    Double_t pulseIntRaw    = ((THcSignalHit*)frAdcPulseIntRaw->ConstructedAt(ielem))->GetData();
-  //    Double_t pulseAmp       = ((THcSignalHit*)frAdcPulseAmp->ConstructedAt(ielem))->GetData();
-  //    Double_t pulseTime      = ((THcSignalHit*)frAdcPulseTime->ConstructedAt(ielem))->GetData();
-  //    Double_t adctdcdiffTime = StartTime - pulseTime;
-  //    // By default, the last hit within the timing cut will be considered "good"
-  //    fGoodAdcPed.at(npmt)         = pulsePed;
-  //    fGoodAdcHitUsed.at(npmt)     = ielem + 1;
-  //    fGoodAdcPulseInt.at(npmt)    = pulseInt;
-  //    fGoodAdcPulseIntRaw.at(npmt) = pulseIntRaw;
-  //    fGoodAdcPulseAmp.at(npmt)    = pulseAmp;
-  //    fGoodAdcPulseTime.at(npmt)   = pulseTime;
-  //    fGoodAdcTdcDiffTime.at(npmt) = adctdcdiffTime;
-
-  //    fNpe.at(npmt) = fGain[npmt] * fGoodAdcPulseInt.at(npmt);
-  //    fNpeSum += fNpe.at(npmt);
-
-  //    fTotNumGoodAdcHits++;
-  //    fNumGoodAdcHits.at(npmt) = npmt + 1;
-  //  }
-  //}
   return 0;
 }
 
