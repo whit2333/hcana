@@ -83,6 +83,8 @@ class THcScintillatorPlane : public THaSubDetector {
   TClonesArray* frNegADCPeds;
   TClonesArray* fHodoHits;
 
+  std::vector<double> frPosTdcTimeRawBetter;
+
   TClonesArray* frPosTdcTimeRaw;
   TClonesArray* frPosAdcPedRaw;
   TClonesArray* frPosAdcPulseIntRaw;

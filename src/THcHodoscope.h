@@ -35,15 +35,39 @@
 
 class THaScCalib;
 
+namespace hallc {
+  namespace data {
+
+    struct Hodoscope {
+      double fBeta           = 0.0;
+      double fBetaNoTrk      = 0.0;
+      double fBetaNoTrkChiSq = 0.0;
+      double fFPTimeAll      = 0.0;
+      double fStartTime      = 0.0;
+      double fTimeHist_Sigma = 0.0;
+      double fTimeHist_Peak  = 0.0;
+      double fTimeHist_Hits  = 0.0;
+      bool   fGoodStartTime  = 0;
+      bool   fGoodScinHits   = 0;
+      ClassDef(Hodoscope,1)
+    };
+
+  } // namespace data
+}
+
 class THcHodoscope : public hcana::ConfigLogging<THaNonTrackingDetector>, public THcHitList {
 
 public:
+
+  hallc::data::Hodoscope  _basic_data;
+
   THcHodoscope( const char* name, const char* description = "",
 		   THaApparatus* a = NULL );
   virtual ~THcHodoscope();
 
   virtual Int_t      Decode( const THaEvData& );
   virtual EStatus    Init( const TDatime& run_time );
+  virtual Int_t      ManualInitTree( TTree* t );
   virtual void       Clear( Option_t* opt="" );
 
   virtual Int_t      CoarseProcess( TClonesArray& tracks );
@@ -146,6 +170,8 @@ protected:
   // Way too many data members!!!!!
   // Get rid of junk!
 
+  // Why does this need to be here?
+  //  bad design
   THcCherenkov* fCherenkov;
 
   Int_t fTDC_RefTimeCut;

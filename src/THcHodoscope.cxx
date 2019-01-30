@@ -33,6 +33,9 @@ hodoscope array, not just one plane.
 #include "TClonesArray.h"
 #include "TMath.h"
 
+#include "THaOutput.h"
+#include "TTree.h"
+
 #include "THaTrackProj.h"
 #include <vector>
 
@@ -173,7 +176,7 @@ THaAnalysisObject::EStatus THcHodoscope::Init( const TDatime& date )
   // maximum number of hits after setting up the detector map
   // But it needs to happen before the sub detectors are initialized
   // so that they can get the pointer to the hitlist.
-  _det_logger->info("Hodo tdc ref time cut = {} {}", fTDC_RefTimeCut, fADC_RefTimeCut);
+  _det_logger->info("Hodo TDC and ADC ref time cut = {} {}", fTDC_RefTimeCut, fADC_RefTimeCut);
   //cout << " Hodo tdc ref time cut = " << fTDC_RefTimeCut << " " << fADC_RefTimeCut << endl;
 
   InitHitList(fDetMap, "THcRawHodoHit", fDetMap->GetTotNumChan()+1,
@@ -190,6 +193,7 @@ THaAnalysisObject::EStatus THcHodoscope::Init( const TDatime& date )
     }
   }
 
+  // Why not std::vector?
   fNScinHits     = new Int_t [fNPlanes];
   fGoodPlaneTime = new Bool_t [fNPlanes];
   fNPlaneTime    = new Int_t [fNPlanes];
@@ -547,23 +551,37 @@ Int_t THcHodoscope::DefineVariables( EMode mode )
 
   RVarDef vars[] = {
     // Move these into THcHallCSpectrometer using track fTracks
-    {"beta",       "Beta including track info",                "fBeta"},
-    {"betanotrack",       "Beta from scintillator hits",                "fBetaNoTrk"},
-    {"betachisqnotrack",  "Chi square of beta from scintillator hits",  "fBetaNoTrkChiSq"},
-    {"fpHitsTime",        "Time at focal plane from all hits",            "fFPTimeAll"},
-    {"starttime",         "Hodoscope Start Time",                         "fStartTime"},
-    {"goodstarttime",     "Hodoscope Good Start Time (logical flag)",                    "fGoodStartTime"},
-    {"goodscinhit",       "Hit in fid area",                              "fGoodScinHits"},
-    {"TimeHist_Sigma",       "",                              "fTimeHist_Sigma"},
-    {"TimeHist_Peak",       "",                              "fTimeHist_Peak"},
-    {"TimeHist_Hits",       "",                              "fTimeHist_Hits"},
+    {"beta"             , "Beta including track info"                 , "fBeta"           } ,
+    {"betanotrack"      , "Beta from scintillator hits"               , "fBetaNoTrk"      } ,
+    {"betachisqnotrack" , "Chi square of beta from scintillator hits" , "fBetaNoTrkChiSq" } ,
+    {"fpHitsTime"       , "Time at focal plane from all hits"         , "fFPTimeAll"      } ,
+    {"starttime"        , "Hodoscope Start Time"                      , "fStartTime"      } ,
+    {"goodstarttime"    , "Hodoscope Good Start Time (logical flag)"  , "fGoodStartTime"  } ,
+    {"goodscinhit"      , "Hit in fid area"                           , "fGoodScinHits"   } ,
+    {"TimeHist_Sigma"   , ""                                          , "fTimeHist_Sigma" } ,
+    {"TimeHist_Peak"    , ""                                          , "fTimeHist_Peak"  } ,
+    {"TimeHist_Hits"    , ""                                          , "fTimeHist_Hits"  } ,
      { 0 }
   };
+
   return DefineVarsFromList( vars, mode );
   //  return kOK;
 }
-
 //_____________________________________________________________________________
+
+Int_t THcHodoscope::ManualInitTree( TTree* t ){
+  // The most direct path to the output tree!!!
+  std::string app_name    = GetApparatus()->GetName();
+  std::string det_name    = GetName();
+  std::string branch_name = (app_name + "_" + det_name + "_data");
+  _det_logger->info("THcHodoscope::ManualInitTree : Adding branch, {}, to output tree", branch_name);
+  if (t) {
+    t->Branch(branch_name.c_str(), &_basic_data, 32000, 99);
+  }
+  return 0;
+}
+//_____________________________________________________________________________
+
 THcHodoscope::~THcHodoscope()
 {
   // Destructor. Remove variables from global list.
@@ -805,6 +823,9 @@ void THcHodoscope::EstimateFocalPlaneTime()
   fTimeHist_Peak=  tmin;
   fTimeHist_Sigma=  hTime->GetRMS();
   fTimeHist_Hits=  hTime->Integral();
+  _basic_data.fTimeHist_Peak  = fTimeHist_Peak ;
+  _basic_data.fTimeHist_Sigma = fTimeHist_Sigma;
+  _basic_data.fTimeHist_Hits  = fTimeHist_Hits ;
   for(Int_t ip=0;ip<fNumPlanesBetaCalc;ip++) {
     goodplanetime[ip] = kFALSE;
     Int_t nphits=fPlanes[ip]->GetNScinHits();
@@ -1868,6 +1889,8 @@ Int_t THcHodoscope::FineProcess( TClonesArray&  tracks  )
     if (theTrack->GetIndex()==0) {
       fBeta=theTrack->GetBeta();
       fFPTimeAll=theTrack->GetFPTime();
+      _basic_data.fBeta           = fBeta;
+      _basic_data.fFPTimeAll      = fFPTimeAll;
       Double_t shower_track_enorm = theTrack->GetEnergy()/theTrack->GetP();
       for (Int_t ip = 0; ip < fNumPlanesBetaCalc; ip++ ){
 	Double_t pl_xypos=0;

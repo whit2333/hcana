@@ -276,7 +276,7 @@ Int_t THcScintillatorPlane::ReadDatabase( const TDatime& date )
   fADCDiagCut = 50.0;
   fCosmicFlag=0;
   gHcParms->LoadParmValues((DBRequest*)&list,prefix);
-  if (fCosmicFlag==1) cout << " setup for cosmics in scint plane"<< endl;
+  if (fCosmicFlag==1) _det_logger->info("THcScintillatorPlane: setup for cosmics in scint plane");
   // cout << " cosmic flag = " << fCosmicFlag << endl;
   // fetch the parameter from the temporary list
 
@@ -471,6 +471,7 @@ Int_t THcScintillatorPlane::DefineVariables( EMode mode )
   } //end debug statement
 
   RVarDef vars[] = {
+    {"betterTest", "List of positive TDC counter numbers.", "frPosTdcTimeRawBetter"},   //Hodo+ raw TDC occupancy
     {"nhits", "Number of paddle hits (passed TDC && ADC Min and Max cuts for either end)",           "GetNScinHits() "},
 
     {"posTdcCounter", "List of positive TDC counter numbers.", "frPosTdcTimeRaw.THcSignalHit.GetPaddleNumber()"},   //Hodo+ raw TDC occupancy

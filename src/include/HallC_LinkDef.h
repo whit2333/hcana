@@ -12,6 +12,10 @@
 #pragma link C++ namespace hallc;
 #pragma link C++ namespace hcana;
 
+#pragma link C++ namespace hallc::data;
+
+#pragma link C++ class hallc::data::Hodoscope+;
+
 
 #pragma link C++ global gHcParms;
 #pragma link C++ global gHcDetectorMap;
