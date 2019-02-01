@@ -19,6 +19,25 @@
 
 #define NUM_FPRAY 4
 
+namespace hallc {
+  namespace data {
+
+    /** Drift chamber data.
+     *  Currently just for testing
+     */
+    struct DriftChamber {
+
+      std::vector<double> _Residuals;
+      std::vector<double> _ResidualsExclPlane;
+      std::vector<double> _Wire_hit_did;      
+      std::vector<double> _Wire_hit_should;   
+
+      ClassDef(DriftChamber,1)
+    };
+
+  } // namespace data
+}
+
 //class THaScCalib;
 class TClonesArray;
 
@@ -28,12 +47,16 @@ protected:
   std::shared_ptr<spdlog::logger> _sub_logger; //!
 
 public:
+
+  hallc::data::DriftChamber  _basic_data;
+
   THcDC( const char* name, const char* description = "",
 		   THaApparatus* a = NULL );
   virtual ~THcDC();
 
   virtual Int_t      Decode( const THaEvData& );
   virtual EStatus    Init( const TDatime& run_time );
+  virtual Int_t      ManualInitTree( TTree* t );
   virtual Int_t      End(THaRunBase* run=0);
   virtual Int_t      CoarseTrack( TClonesArray& tracks );
   virtual Int_t      FineTrack( TClonesArray& tracks );

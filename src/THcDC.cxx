@@ -277,6 +277,18 @@ THaAnalysisObject::EStatus THcDC::Init( const TDatime& date )
   }
   return fStatus = kOK;
 }
+//_____________________________________________________________________________
+
+Int_t THcDC::ManualInitTree( TTree* t ){
+  std::string app_name    = GetApparatus()->GetName();
+  std::string det_name    = GetName();
+  std::string branch_name = (app_name + "_" + det_name + "_data");
+  if (t) {
+    _det_logger->info("THcDC::ManualInitTree : Adding branch, {}, to output tree", branch_name);
+    t->Branch(branch_name.c_str(), &_basic_data, 32000, 99);
+  }
+  return 0;
+}
 
 //_____________________________________________________________________________
 Int_t THcDC::ReadDatabase( const TDatime& date )
@@ -673,13 +685,13 @@ void THcDC::SetFocalPlaneBestTrack(Int_t golden_track_index)
       fSp2_ID_best=tr1->GetSp2_ID();
       fChisq_best=tr1->GetChisq();
       fNsp_best=tr1->GetNSpacePoints();
-         for (UInt_t ihit = 0; ihit < UInt_t (tr1->GetNHits()); ihit++) {
-	THcDCHit *hit = tr1->GetHit(ihit);
-	Int_t plane = hit->GetPlaneNum() - 1;
+      for (UInt_t ihit = 0; ihit < UInt_t (tr1->GetNHits()); ihit++) {
+        THcDCHit *hit = tr1->GetHit(ihit);
+        Int_t plane = hit->GetPlaneNum() - 1;
         fResiduals[plane] = tr1->GetResidual(plane);
         fResidualsExclPlane[plane] = tr1->GetResidualExclPlane(plane);
-	 } 
-	 EfficiencyPerWire(golden_track_index);
+      } 
+      EfficiencyPerWire(golden_track_index);
 }
 //
 void THcDC::EfficiencyPerWire(Int_t golden_track_index)

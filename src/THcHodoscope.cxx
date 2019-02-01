@@ -1546,7 +1546,7 @@ void THcHodoscope::TrackEffTest(void)
   using HitIterator      = std::vector<THcHodoHit*>::iterator;
   using HitRangeVector   = typename std::vector<std::pair<HitIterator, HitIterator>>;
   using ClusterPositions = typename std::vector<double>;
-  std::vector<std::vector<THcHodoHit*>> hit_vecs;
+  std::map<int,std::vector<THcHodoHit*>> hit_vecs;
   std::vector<HitRangeVector>           hit_clusters;
   std::vector<ClusterPositions>         pos_clusters;
   std::vector<std::vector<int>>         good_clusters;
@@ -1558,7 +1558,7 @@ void THcHodoscope::TrackEffTest(void)
     TClonesArray* hodoHits = fPlanes[ip]->GetHits();
 
     // Create vector for good hits.
-    hit_vecs.push_back(std::vector<THcHodoHit*>());
+    hit_vecs[ip] = std::vector<THcHodoHit*>();
     for (Int_t iphit = 0; iphit < fPlanes[ip]->GetNScinHits(); iphit++ ){
       THcHodoHit *hit = (THcHodoHit*)hodoHits->At(iphit);
       // keep only those with "two good times"

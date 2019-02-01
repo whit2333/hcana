@@ -15,6 +15,7 @@
 #pragma link C++ namespace hallc::data;
 
 #pragma link C++ class hallc::data::Hodoscope+;
+#pragma link C++ class hallc::data::DriftChamber+;
 
 
 #pragma link C++ global gHcParms;
