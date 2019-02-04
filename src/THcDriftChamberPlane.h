@@ -52,6 +52,8 @@ public:
   { assert( i>=1 && i<=GetNWires() );
     return (THcDCWire*)fWires->UncheckedAt(i-1); }
 
+  TClonesArray*  GetWires() { return fWires; }
+
   Int_t         GetNHits() const { return fHits->GetLast()+1; }
   Int_t         GetNRawhits() const {return fNRawhits; }
   TClonesArray* GetHits()  const { return fHits; }

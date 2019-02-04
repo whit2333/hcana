@@ -688,7 +688,9 @@ void THcDC::SetFocalPlaneBestTrack(Int_t golden_track_index)
       for (UInt_t ihit = 0; ihit < UInt_t (tr1->GetNHits()); ihit++) {
         THcDCHit *hit = tr1->GetHit(ihit);
         Int_t plane = hit->GetPlaneNum() - 1;
+        _basic_data._Residuals[plane] = tr1->GetResidual(plane);
         fResiduals[plane] = tr1->GetResidual(plane);
+        _basic_data._ResidualsExclPlane[plane] = tr1->GetResidualExclPlane(plane);
         fResidualsExclPlane[plane] = tr1->GetResidualExclPlane(plane);
       } 
       EfficiencyPerWire(golden_track_index);

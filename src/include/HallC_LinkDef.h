@@ -21,6 +21,7 @@
 #pragma link C++ global gHcParms;
 #pragma link C++ global gHcDetectorMap;
  
+
 #pragma link C++ class Decoder::Scaler9001+;
 #pragma link C++ class Decoder::Scaler9250+;
 #pragma link C++ class THcAerogel+;

@@ -15,6 +15,7 @@
 #include "THcDriftChamber.h"
 #include "TMath.h"
 
+#include <map>
 #include "hcana/Logger.h"
 
 #define NUM_FPRAY 4
@@ -27,10 +28,11 @@ namespace hallc {
      */
     struct DriftChamber {
 
-      std::vector<double> _Residuals;
-      std::vector<double> _ResidualsExclPlane;
-      std::vector<double> _Wire_hit_did;      
-      std::vector<double> _Wire_hit_should;   
+      // Plane number  
+      std::map<int,double> _Residuals;
+      std::map<int,double> _ResidualsExclPlane;
+      std::map<int,double> _Wire_hit_did;      
+      std::map<int,double> _Wire_hit_should;   
 
       ClassDef(DriftChamber,1)
     };

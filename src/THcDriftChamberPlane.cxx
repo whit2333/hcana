@@ -257,8 +257,7 @@ Int_t THcDriftChamberPlane::ReadDatabase( const TDatime& date )
   // For HMS, wire numbers start with one, but arrays start with zero.
   // So wire number is index+1
   for (int i=0; i<nWires; i++) {
-    Double_t pos = fPitch*( (fWireOrder==0?(i+1):fNWires-i)
-			    - fCentralWire) - fCenter;
+    Double_t pos = fPitch * ((fWireOrder == 0 ? (i + 1) : fNWires - i) - fCentralWire) - fCenter;
     Int_t readoutside = GetReadoutSide(i+1);
     new((*fWires)[i]) THcDCWire( i+1, pos , fTzeroWire[i], fSigmaWire[i], readoutside, fTTDConv);    //added fTzeroWire/fSigmaWire to be read in as fTOffset --Carlos
   }
