@@ -13,10 +13,14 @@
 #include "THcCherenkovHit.h"
 
 #include "hcana/Logger.h"
+#include "hcana/HallC_Data.h"
 
 class THcHodoscope;
 
 class THcCherenkov : public THaNonTrackingDetector, public THcHitList {
+public: 
+
+  std::vector<hallc::data::PulseWaveForm> _waveforms; 
 
   using vec = std::vector<Double_t>;
 
@@ -31,6 +35,7 @@ class THcCherenkov : public THaNonTrackingDetector, public THcHitList {
   virtual Int_t   Decode(const THaEvData&);
   virtual Int_t   ReadDatabase(const TDatime& date);
   virtual Int_t   DefineVariables(EMode mode = kDefine);
+  virtual Int_t   ManualInitTree( TTree* t );
   virtual Int_t   CoarseProcess(TClonesArray& tracks);
   virtual Int_t   FineProcess(TClonesArray& tracks);
   virtual Int_t   ApplyCorrections( void );

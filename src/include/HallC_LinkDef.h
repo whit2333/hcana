@@ -17,6 +17,10 @@
 #pragma link C++ class hallc::data::Hodoscope+;
 #pragma link C++ class hallc::data::DriftChamber+;
 
+#pragma link C++ class hallc::data::PulseWaveForm+;
+#pragma link C++ class std::vector<hallc::data::PulseWaveForm>+;
+
+
 
 #pragma link C++ global gHcParms;
 #pragma link C++ global gHcDetectorMap;

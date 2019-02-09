@@ -574,8 +574,8 @@ Int_t THcHodoscope::ManualInitTree( TTree* t ){
   std::string app_name    = GetApparatus()->GetName();
   std::string det_name    = GetName();
   std::string branch_name = (app_name + "_" + det_name + "_data");
-  _det_logger->info("THcHodoscope::ManualInitTree : Adding branch, {}, to output tree", branch_name);
   if (t) {
+    _det_logger->info("THcHodoscope::ManualInitTree : Adding branch, {}, to output tree", branch_name);
     t->Branch(branch_name.c_str(), &_basic_data, 32000, 99);
   }
   return 0;

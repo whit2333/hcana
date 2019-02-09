@@ -32,11 +32,13 @@
 #include <fstream>
 
 #include "hcana/Logger.h"
+#include "hcana/HallC_Data.h"
 
 class THaScCalib;
 
 namespace hallc {
   namespace data {
+
 
     struct Hodoscope {
       double fBeta           = 0.0;
