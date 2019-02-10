@@ -237,7 +237,8 @@ Int_t THcHitList::DecodeToHitList( const THaEvData& evdata, Bool_t suppresswarni
   Bool_t tdcref_miss = kFALSE;
   Bool_t adcref_miss = kFALSE;
 
-  // Get the indexed reference times for this event
+  // 
+  /// Get the indexed reference times for this event
   for(Int_t i=0;i<fNRefIndex;i++) {
     if(fRefIndexMaps[i].defined) {
       
@@ -299,6 +300,8 @@ Int_t THcHitList::DecodeToHitList( const THaEvData& evdata, Bool_t suppresswarni
       }
     }
   }
+
+  // 
   for ( Int_t i=0; i < fdMap->GetSize(); i++ ) {
     THaDetMap::Module* d = fdMap->GetModule(i);
     
@@ -391,7 +394,8 @@ Int_t THcHitList::DecodeToHitList( const THaEvData& evdata, Bool_t suppresswarni
 	    }
 	  }
 	}
-      } else {			// This is a Flash ADC
+      } else {
+        // This is a Flash ADC
 
         if (fPSE125) {
 	  if(!fHaveFADCInfo) {
@@ -414,8 +418,9 @@ Int_t THcHitList::DecodeToHitList( const THaEvData& evdata, Bool_t suppresswarni
 	}
 	// Now get the pulse mode data
 	// Pulse area will go into regular SetData, others will use special hit methods
-	Int_t npulses=evdata.GetNumEvents(Decoder::kPulseIntegral, d->crate, d->slot, chan);
-	// Assume that the # of pulses for kPulseTime, kPulsePeak and kPulsePedestal are same;
+        Int_t npulses = evdata.GetNumEvents(Decoder::kPulseIntegral, d->crate, d->slot, chan);
+
+        // Assume that the # of pulses for kPulseTime, kPulsePeak and kPulsePedestal are same;
 	Int_t timeshift=0;
 	if(fTISlot>0) {		// Get the trigger time for this module
 	  if(fTrigTimeShiftMap.find(d->slot)

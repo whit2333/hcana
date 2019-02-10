@@ -414,12 +414,16 @@ Int_t THcCherenkov::Decode(const THaEvData& evdata) {
 
   Int_t  ihit      = 0;
   UInt_t nrAdcHits = 0;
+  _waveforms.clear();
 
   while (ihit < fNhits) {
 
     THcCherenkovHit* hit       = (THcCherenkovHit*)fRawHitList->At(ihit);
     Int_t            npmt      = hit->fCounter;
     THcRawAdcHit&    rawAdcHit = hit->GetRawAdcHitPos();
+    
+    _waveforms.push_back({rawAdcHit.GetSampleBuffer()});
+
 
     for (UInt_t thit = 0; thit < rawAdcHit.GetNPulses(); thit++) {
 

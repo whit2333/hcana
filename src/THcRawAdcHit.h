@@ -46,6 +46,9 @@ class THcRawAdcHit : public TObject {
     Double_t GetPulseAmp(UInt_t iPulse=0) const;
     Double_t GetPulseTime(UInt_t iPulse=0) const;
     //Int_t GetSample(UInt_t iSample=0) const;
+    
+    Int_t* GetSampleBuffer() { return fSample;}
+
 
     Int_t    GetSampleIntRaw() const;
     Double_t GetSampleInt() const;
@@ -60,11 +63,12 @@ class THcRawAdcHit : public TObject {
     static const UInt_t fMaxNSamples = 511;
     
     // FADC conversion factors
-    static const Double_t fNAdcChan; // Number of FADC channels in units of ADC channels
-    static const Double_t fAdcRange;    // Dynamic range of FADCs in units of V, // TO-DO: Get fAdcRange from pre-start event
-    static const Double_t fAdcImpedence;   // FADC input impedence in units of Ohms
-    static const Double_t fAdcTimeSample;    // Length of FADC time sample in units of ps
-    static const Double_t fAdcTimeRes; // FADC time resolution in units of ns
+    static const Double_t fNAdcChan;      // Number of FADC channels in units of ADC channels
+    static const Double_t fAdcRange;      // Dynamic range of FADCs in units of V, // TO-DO: Get
+                                          // fAdcRange from pre-start event
+    static const Double_t fAdcImpedence;  // FADC input impedence in units of Ohms
+    static const Double_t fAdcTimeSample; // Length of FADC time sample in units of ps
+    static const Double_t fAdcTimeRes;    // FADC time resolution in units of ns
 
     Int_t fNPedestalSamples;  // TODO: Get this from prestart event...
     Int_t fNPeakSamples;
@@ -75,7 +79,7 @@ class THcRawAdcHit : public TObject {
     Int_t fPulseInt[fMaxNPulses];
     Int_t fPulseAmp[fMaxNPulses];
     Int_t fPulseTime[fMaxNPulses];
-    Int_t fSample[fMaxNSamples];
+    Int_t fSample[fMaxNSamples]; // the big buffer
     Int_t fRefTime;
 
     Bool_t fHasMulti;

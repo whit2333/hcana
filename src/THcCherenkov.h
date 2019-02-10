@@ -55,6 +55,7 @@ public:
   static const Int_t MaxNumAdcPulse = 4;
 
   THcCherenkov();  // for ROOT I/O
+
  protected:
   Bool_t*   fPresentP;
   Int_t     fAnalyzePedestals;
