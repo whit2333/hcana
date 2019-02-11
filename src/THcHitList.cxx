@@ -504,8 +504,11 @@ Int_t THcHitList::DecodeToHitList( const THaEvData& evdata, Bool_t suppresswarni
     map<Int_t, Int_t>::iterator it;
     for(it=fTrigTimeShiftMap.begin(); it!=fTrigTimeShiftMap.end(); it++) {
       if(it->second < -3 || it->second > 3) {
-	cout << "Big ADC Trigger Time Shift, ROC " << fTICrate << endl;
-	cout << it->first << " " << it->second << endl;
+
+        _hit_logger->warn("Big ADC Trigger Time Shift, ROC {}", fTICrate);
+        _hit_logger->warn("                           {} {}", it->first, it->second);
+	//cout << "Big ADC Trigger Time Shift, ROC " << fTICrate << endl;
+	//cout << it->first << " " << it->second << endl;
       }
     }
   }
