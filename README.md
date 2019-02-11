@@ -1,6 +1,8 @@
 hcana - Hall C ROOT/C++ analyzer
 ============================================
 
+Huhhh...
+
 hcana is an under-development tool to analyze data from the HMS, SHMS and
 SOS spectrometers in
 [Hall C](http://www.jlab.org/Hall-C/) at [JLab](http://www.jlab.org/).
