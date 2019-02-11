@@ -389,6 +389,9 @@ void THcCherenkov::Clear(Option_t* opt) {
     fGoodAdcTdcDiffTime.at(ielem) = kBig;
     fNpe.at(ielem)                = 0.0;
   }
+  for(auto& wf : _waveforms) {
+    wf.ZeroBuffer();
+  }
 }
 
 //_____________________________________________________________________________

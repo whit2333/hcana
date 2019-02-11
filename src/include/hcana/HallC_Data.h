@@ -18,6 +18,8 @@ namespace hallc {
       PulseWaveForm(Int_t* buf, Int_t size = MaxNSamples) { std::copy_n(buf, MaxNSamples, std::begin(_buffer)); }
       virtual ~PulseWaveForm() {}
 
+      void ZeroBuffer() { std::fill(std::begin(_buffer), std::end(_buffer), 0); }
+
       std::array<Int_t, MaxNSamples> _buffer;
 
       ClassDef(PulseWaveForm, 1)
