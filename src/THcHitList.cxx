@@ -537,6 +537,12 @@ void THcHitList::MissReport(const char *name)
 {
 
   _hit_logger->warn("Missing Ref times: {:20} {:10} {:10}", name, fNTDCRef_miss, fNADCRef_miss);
+  if( fNTDCRef_miss != 0) {
+    _hit_logger->error("Missing Ref times: {:20} {:10} {:10}", name, fNTDCRef_miss, fNADCRef_miss);
+  }
+  if( fNADCRef_miss != 0) {
+    _hit_logger->error("Missing Ref times: {:20} {:10} {:10}", name, fNTDCRef_miss, fNADCRef_miss);
+  }
   //cout << "Missing Ref times:" << setw(20) << name << setw(10) << fNTDCRef_miss << setw(10) << fNADCRef_miss << endl;
 }
 

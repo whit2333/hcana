@@ -29,7 +29,7 @@ Int_t Scandalizer::ReadOneEvent()
       skipped = run->SkipToEndOfFile(_skip_events);
     }
     _skip_events = 0;
-    _logger->debug("skipped {} events", skipped);
+    _logger->info("skipped {} events", skipped);
     continue;
   }
   if (to_read_file){
