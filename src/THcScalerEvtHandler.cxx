@@ -201,6 +201,7 @@ Int_t THcScalerEvtHandler::Analyze(THaEvData *evdata)
     EvDump(evdata);
   }
 
+  /// \todo : Put this first event stuff in separte function
   if (lfirst && !fScalerTree) {
 
 

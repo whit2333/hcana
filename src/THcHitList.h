@@ -61,6 +61,9 @@ public:
   TClass*       fRawHitClass; // Class of raw hit object to use
   THaDetMap*    fdMap;
 
+  Int_t fNTDCRef_miss;
+  Int_t fNADCRef_miss;
+
 protected:
 
   struct RefIndexMap { // Mapping for one reference channel
@@ -84,8 +87,6 @@ protected:
   Int_t                   fNSB;
   Int_t                   fNPED;
 
-  Int_t fNTDCRef_miss;
-  Int_t fNADCRef_miss;
 
   Decoder::THaCrateMap*                    fMap; /* The Crate map */
   Int_t                                    fTISlot;

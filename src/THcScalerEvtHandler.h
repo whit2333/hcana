@@ -49,7 +49,6 @@ public:
    virtual void SetOnlyBanks(Bool_t b = kFALSE) {fOnlyBanks = b;fRocSet.clear();}
    virtual void SetOnlyUseSyncEvents(Bool_t b=kFALSE) {fOnlySyncEvents = b;}
 
-private:
 
    void AddVars(TString name, TString desc, UInt_t iscal, UInt_t ichan, UInt_t ikind);
    void DefVars();
@@ -90,6 +89,8 @@ private:
    std::vector<UInt_t*> fDelayedEvents;
    std::set<UInt_t> fRocSet;
    std::set<UInt_t> fModuleSet;
+
+private:
 
    THcScalerEvtHandler(const THcScalerEvtHandler& fh);
    THcScalerEvtHandler& operator=(const THcScalerEvtHandler& fh);
