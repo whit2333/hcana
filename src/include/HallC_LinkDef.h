@@ -11,6 +11,7 @@
 
 #pragma link C++ namespace hallc;
 #pragma link C++ namespace hcana;
+#pragma link C++ namespace podd2;
 
 #pragma link C++ namespace hallc::data;
 
@@ -21,6 +22,7 @@
 #pragma link C++ class std::vector<hallc::data::PulseWaveForm>+;
 
 
+#pragma link C++ class podd2::HitLogging<TObject>+;
 
 #pragma link C++ global gHcParms;
 #pragma link C++ global gHcDetectorMap;

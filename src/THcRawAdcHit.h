@@ -3,8 +3,9 @@
 
 #include "TObject.h"
 
+#include "podd2/Logger.h"
 
-class THcRawAdcHit : public TObject {
+class THcRawAdcHit : public podd2::HitLogging<TObject> {
   public:
     THcRawAdcHit();
     THcRawAdcHit& operator=(const THcRawAdcHit& right);
