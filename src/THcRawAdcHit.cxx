@@ -260,7 +260,8 @@ void THcRawAdcHit::SetRefTime(Int_t refTime) {
 
 void THcRawAdcHit::SetSample(Int_t data) {
   if (fNSamples >= fMaxNSamples) {
-    throw std::out_of_range("`THcRawAdcHit::SetSample`: too many samples!");
+    //throw std::out_of_range("`THcRawAdcHit::SetSample`: too many samples!");
+    _hit_logger->error("THcRawAdcHit::SetSample: too many samples! Ignoring sample {}",fNSamples);
   }
   fSample[fNSamples] = data;
   ++fNSamples;
@@ -282,10 +283,12 @@ void THcRawAdcHit::SetDataTimePedestalPeak(Int_t data, Int_t time, Int_t pedesta
 
 Int_t THcRawAdcHit::GetRawData(UInt_t iPulse) const {
   if (iPulse >= fNPulses && iPulse != 0) {
-    TString msg = TString::Format(
-        "`THcRawAdcHit::GetRawData`: requested pulse %d where only %d pulses available!", iPulse,
-        fNPulses);
-    throw std::out_of_range(msg.Data());
+    //TString msg = TString::Format(
+    //    "`THcRawAdcHit::GetRawData`: requested pulse %d where only %d pulses available!", iPulse,
+    //    fNPulses);
+    //throw std::out_of_range(msg.Data());
+    _hit_logger->error("THcRawAdcHit::GetRawData: requested pulse {} where only {} pulses available!", iPulse, fNPulses);
+    return 0;
   } else if (iPulse >= fNPulses && iPulse == 0) {
     return 0;
   } else {
@@ -308,8 +311,10 @@ Double_t THcRawAdcHit::GetAverage(UInt_t iSampleLow, UInt_t iSampleHigh) const {
 
 Int_t THcRawAdcHit::GetIntegral(UInt_t iSampleLow, UInt_t iSampleHigh) const {
   if (iSampleHigh >= fNSamples || iSampleLow >= fNSamples) {
-    TString msg = TString::Format("`THcRawAdcHit::GetAverage`: not this many samples available!");
-    throw std::out_of_range(msg.Data());
+    //TString msg = TString::Format("`THcRawAdcHit::GetAverage`: not this many samples available!");
+    //throw std::out_of_range(msg.Data());
+    _hit_logger->error("THcRawAdcHit::GetRawData: not this many samples available!");
+    return 0;
   } else {
     Int_t integral = 0;
     for (UInt_t i = iSampleLow; i <= iSampleHigh; ++i) {
@@ -338,10 +343,12 @@ Int_t THcRawAdcHit::GetPulseIntRaw(UInt_t iPulse) const {
   } else if (iPulse == 0) {
     return 0;
   } else {
-    TString msg = TString::Format(
-        "`THcRawAdcHit::GetPulseIntRaw`: Trying to get pulse %d where only %d pulses available!",
-        iPulse, fNPulses);
-    throw std::out_of_range(msg.Data());
+    //TString msg = TString::Format(
+    //    "`THcRawAdcHit::GetPulseIntRaw`: Trying to get pulse %d where only %d pulses available!",
+    //    iPulse, fNPulses);
+    //throw std::out_of_range(msg.Data());
+    _hit_logger->error("THcRawAdcHit::GetPulseIntRaw: Trying to get pulse {} where only {} pulses available!", iPulse, fNPulses);
+    return 0;
   }
 }
 
@@ -351,10 +358,12 @@ Int_t THcRawAdcHit::GetPulseAmpRaw(UInt_t iPulse) const {
   } else if (iPulse == 0) {
     return 0;
   } else {
-    TString msg = TString::Format(
-        "`THcRawAdcHit::GetPulseAmpRaw`: Trying to get pulse %d where only %d pulses available!",
-        iPulse, fNPulses);
-    throw std::out_of_range(msg.Data());
+    //TString msg = TString::Format(
+    //    "`THcRawAdcHit::GetPulseAmpRaw`: Trying to get pulse %d where only %d pulses available!",
+    //    iPulse, fNPulses);
+    //throw std::out_of_range(msg.Data());
+    _hit_logger->error("THcRawAdcHit::GetPulseIntRaw: Trying to get pulse {} where only {} pulses available!", iPulse, fNPulses);
+    return 0;
   }
 }
 
@@ -364,10 +373,12 @@ Int_t THcRawAdcHit::GetPulseTimeRaw(UInt_t iPulse) const {
   } else if (iPulse == 0) {
     return 0;
   } else {
-    TString msg = TString::Format(
-        "`THcRawAdcHit::GetPulseTimeRaw`: Trying to get pulse %d where only %d pulses available!",
-        iPulse, fNPulses);
-    throw std::out_of_range(msg.Data());
+    //TString msg = TString::Format(
+    //    "`THcRawAdcHit::GetPulseTimeRaw`: Trying to get pulse %d where only %d pulses available!",
+    //    iPulse, fNPulses);
+    //throw std::out_of_range(msg.Data());
+    _hit_logger->error("THcRawAdcHit::GetPulseIntRaw: Trying to get pulse {} where only {} pulses available!", iPulse, fNPulses);
+    return 0;
   }
 }
 
@@ -375,10 +386,13 @@ Int_t THcRawAdcHit::GetSampleRaw(UInt_t iSample) const {
   if (iSample < fNSamples) {
     return fSample[iSample];
   } else {
-    TString msg = TString::Format(
-        "`THcRawAdcHit::GetSampleRaw`: Trying to get sample %d where only %d samples available!",
+    //TString msg = TString::Format(
+    //    "`THcRawAdcHit::GetSampleRaw`: Trying to get sample %d where only %d samples available!",
+    //    iSample, fNSamples);
+    //throw std::out_of_range(msg.Data());
+    _hit_logger->error("THcRawAdcHit::GetSampleRaw: Trying to get sample {} where only {} samples available!",
         iSample, fNSamples);
-    throw std::out_of_range(msg.Data());
+    return 0;
   }
 }
 
