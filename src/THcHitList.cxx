@@ -60,8 +60,8 @@ a method to ask the OO decoder what kind of module is in a given slot?
 
 void THcHitList::InitHitList(THaDetMap* detmap,
 			     const char *hitclass, Int_t maxhits,
-			     Int_t tdcref_cut, Int_t adcref_cut) {
-
+                             Int_t tdcref_cut, Int_t adcref_cut) {
+  _hit_logger->set_level(spdlog::level::debug);
   _hit_logger->info("InitHitList: {} RefTimeCuts: {} {}", hitclass, tdcref_cut, adcref_cut);
   //cout << "InitHitList: " << hitclass << " RefTimeCuts: " << tdcref_cut << " " << adcref_cut << endl;
   fRawHitList = new TClonesArray(hitclass, maxhits);
@@ -433,6 +433,7 @@ Int_t THcHitList::DecodeToHitList( const THaEvData& evdata, Bool_t suppresswarni
 	  timeshift = fTrigTimeShiftMap[d->slot];
 	}
 	for (Int_t ipulse=0;ipulse<npulses;ipulse++) {
+          //_hit_logger->debug("event {} : ROC {} slot {} channel {}", evdata.GetEvNum() , d->crate, d->slot, chan);
 	  rawhit->SetDataTimePedestalPeak(signal,
 					  evdata.GetData(Decoder::kPulseIntegral, d->crate, d->slot, chan, ipulse),
 					  evdata.GetData(Decoder::kPulseTime, d->crate, d->slot, chan, ipulse)+64*timeshift,
